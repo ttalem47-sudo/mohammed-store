@@ -3,289 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohamed Store</title>
-    <link rel="icon" href="IMG-20260925-WA0048.jpg">
+    <title>لوحة التحكم - Mohamed Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 20px; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 24px; color: #fbbf24; margin-bottom: 20px; text-align: center; }
         
-        body { 
-            background: url('1790521573595.jpg') no-repeat center center fixed; 
-            background-size: cover;
-            color: #f8fafc; 
-            min-height: 100vh;
-            padding-top: 80px;
-            padding-bottom: 30px;
-        }
-
-        /* --- شاشة الافتتاحية (Splash Screen) --- */
-        #splashScreen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #000000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-
-        #splashScreen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .splash-logo {
-            width: 140px;
-            height: auto;
+        .card {
+            background: rgba(30, 41, 59, 0.9);
             border-radius: 16px;
-            box-shadow: 0 0 25px rgba(217, 119, 6, 0.4);
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
-            50% { transform: scale(1.08); box-shadow: 0 0 30px rgba(217, 119, 6, 0.7); }
-            100% { transform: scale(0.95); box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
-        }
-
-        /* --- شريط الملاحة (Navbar) --- */
-        .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 70px;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        .brand-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-logo-img {
-            height: 45px;
-            width: auto;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-
-        .brand-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #d97706;
-            letter-spacing: 0.5px;
-        }
-
-        .tabs-container {
-            display: flex;
-            gap: 10px;
-            padding: 15px 20px;
-            overflow-x: auto;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .tab-btn {
-            background: rgba(30, 41, 59, 0.75);
-            backdrop-filter: blur(8px);
-            color: #cbd5e1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active, .tab-btn:hover {
-            background: #d97706;
-            color: #ffffff;
-            border-color: #d97706;
-            box-shadow: 0 0 15px rgba(217, 119, 6, 0.5);
-        }
-
-        .container { max-width: 800px; margin: 0 auto; padding: 10px 20px; }
-        
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.37);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInSlide 0.5s ease forwards;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-        }
-
-        .img-wrapper {
-            position: relative;
-            width: 100%;
-            height: 220px;
-            overflow: hidden;
-            cursor: pointer;
-            background: rgba(15, 23, 42, 0.5);
-        }
-
-        .product-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .product-details { padding: 15px; }
-
-        .product-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: #f8fafc;
-        }
-
-        .product-price {
-            font-size: 18px;
-            font-weight: 800;
-            color: #fbbf24;
-            margin-bottom: 8px;
-        }
-
-        .product-sizes-info {
-            font-size: 13px;
-            color: #cbd5e1;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 6px 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .btn-order {
-            width: 100%;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-order:hover { background: #1d4ed8; }
-
-        .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            animation: zoomIn 0.3s ease;
-        }
-
-        .modal-header {
-            font-weight: 800;
-            font-size: 18px;
-            color: #fbbf24;
-            margin-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-        }
-
-        .form-group { margin-bottom: 12px; }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #cbd5e1;
-        }
-
-        .form-group input {
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 700; color: #cbd5e1; font-size: 14px; }
+        input, select {
             width: 100%;
             padding: 10px;
-            border: 1.5px solid rgba(255,255,255,0.2);
             border-radius: 8px;
-            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+            background: #1e293b;
             color: #fff;
             font-size: 14px;
         }
 
-        .btn-confirm {
+        .file-upload-btn {
+            display: block;
             width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-btn:hover { background: #2563eb; }
+
+        .img-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
             background: #16a34a;
             color: white;
             border: none;
-            padding: 12px;
             border-radius: 10px;
             font-weight: 800;
             cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
             margin-top: 10px;
-            font-size: 15px;
+        }
+        .btn-add:hover { background: #15803d; }
+
+        .product-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .btn-close {
-            width: 100%;
-            background: transparent;
-            color: #94a3b8;
+        .item-info { display: flex; align-items: center; gap: 12px; }
+        .item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
             border: none;
-            padding: 8px;
-            margin-top: 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
-        }
-
-        @keyframes fadeInSlide {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            font-weight: bold;
         }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -299,199 +112,158 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let allProducts = [];
-        let currentOrder = {};
+        let compressedImageBase64 = "";
 
-        async function loadProducts() {
-            const grid = document.getElementById('productsGrid');
+        window.handleImageUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const scaleFactor = MAX_WIDTH / img.width;
+                    
+                    canvas.width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
+                    canvas.height = (img.width > MAX_WIDTH) ? img.height * scaleFactor : img.height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+                    const preview = document.getElementById('previewImg');
+                    preview.src = compressedImageBase64;
+                    preview.style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        async function loadAdminProducts() {
+            const list = document.getElementById('adminProductsList');
+            list.innerHTML = "جاري التحميل...";
             try {
                 const querySnapshot = await getDocs(collection(db, "products"));
-                allProducts = [];
-                querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
-                
-                updateAreaTabs();
-                renderProducts(allProducts);
-            } catch (e) {
-                grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل المنتجات</p>';
-            }
-        }
-
-        function updateAreaTabs() {
-            const tabsContainer = document.getElementById('tabsContainer');
-            const defaultAreas = ["عطبرة", "أمدرمان", "بورتسودان"];
-            const existingAreas = new Set(defaultAreas);
-
-            allProducts.forEach(p => {
-                if (p.area) existingAreas.add(p.area);
-            });
-
-            let html = `<button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>`;
-            existingAreas.forEach(area => {
-                html += `<button class="tab-btn" onclick="filterArea('${area}', this)">${area}</button>`;
-            });
-
-            tabsContainer.innerHTML = html;
-        }
-
-        window.filterArea = function(area, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            if (area === 'all') {
-                renderProducts(allProducts);
-            } else {
-                const filtered = allProducts.filter(p => p.area === area);
-                renderProducts(filtered);
-            }
-        };
-
-        function renderProducts(products) {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = "";
-
-            if (products.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: #cbd5e1; padding: 40px; background: rgba(15, 23, 42, 0.6); border-radius: 12px;">لا توجد عروض متوفرة حالياً في هذه المنطقة</p>';
-                return;
-            }
-
-            products.forEach(p => {
-                // يعرض المقاسات المدخلة من الأدمن، أو يتركه فارغاً أو حسب المتوفر
-                const sizesDisplay = p.sizes ? p.sizes : 'متوفر لجميع المقاسات';
-
-                grid.innerHTML += `
-                    <div class="product-card">
-                        <div class="img-wrapper" onclick="openPreview('${p.img}')">
-                            <img src="${p.img}" class="product-img" alt="${p.name}">
-                        </div>
-                        <div class="product-details">
-                            <h3 class="product-title">${p.name}</h3>
-                            <div class="product-price">${p.price} ج.س</div>
-                            <div class="product-sizes-info">
-                               <strong>المقاسات:</strong> ${sizesDisplay}
+                list.innerHTML = "";
+                querySnapshot.forEach(docSnap => {
+                    const p = docSnap.data();
+                    list.innerHTML += `
+                        <div class="product-list-item">
+                            <div class="item-info">
+                                <img src="${p.img}" class="item-img">
+                                <div>
+                                    <div style="font-weight: bold;">${p.name}</div>
+                                    <div style="color: #fbbf24; font-size: 13px;">${p.price} ج.س |  ${p.area || 'غير محدد'}</div>
+                                    <div style="color: #cbd5e1; font-size: 12px;">المقاسات: ${p.sizes || 'غير محددة'}</div>
+                                </div>
                             </div>
-                            <button class="btn-order" onclick="openOrderModal('${p.name}', '${p.price}')">طلب العرض عبر واتساب</button>
+                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف</button>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            } catch (e) {
+                list.innerHTML = "خطأ في تحميل المنتجات";
+            }
         }
 
-        window.openOrderModal = function(name, price) {
-            currentOrder = {
-                name: name,
-                price: price
-            };
-            document.getElementById('custSize').value = '';
-            document.getElementById('orderModal').style.display = 'flex';
-        };
+        window.addProduct = async function() {
+            const name = document.getElementById('pName').value.trim();
+            const price = document.getElementById('pPrice').value.trim();
+            const area = document.getElementById('pArea').value;
+            const sizes = document.getElementById('pSizes').value.trim();
 
-        window.closeOrderModal = function() {
-            document.getElementById('orderModal').style.display = 'none';
-        };
-
-        window.submitOrderToWhatsApp = function() {
-            const customerName = document.getElementById('custName').value.trim();
-            const customerPhone = document.getElementById('custPhone').value.trim();
-            const customerAddress = document.getElementById('custAddress').value.trim();
-            const customerSize = document.getElementById('custSize').value.trim() || 'غير محدد';
-
-            if (!customerName || !customerPhone || !customerAddress) {
-                alert('يرجى كتابة الاسم، رقم الهاتف، والمنطقة/العنوان الدقيق لإتمام الطلب.');
+            if (!name || !price || !compressedImageBase64) {
+                alert('يرجى اختيار صورة واختيار اسم وسعر للمنتج.');
                 return;
             }
 
-            const myWhatsAppNumber = "249901358927";
-
-            const text = `طلب جديد - Mohamed Store%0A` +
-                         `----------------------------%0A` +
-                         `المنتج: ${currentOrder.name}%0A` +
-                         `المقاس المطلوب: ${customerSize}%0A` +
-                         `السعر: ${currentOrder.price} ج.س%0A` +
-                         `----------------------------%0A` +
-                         `اسم الزبون: ${customerName}%0A` +
-                         `رقم الزبون: ${customerPhone}%0A` +
-                         `المنطقة والعنوان الدقيق: ${customerAddress}`;
-
-            window.open(`https://wa.me/${myWhatsAppNumber}?text=${text}`, '_blank');
-            closeOrderModal();
+            try {
+                await addDoc(collection(db, "products"), {
+                    name: name,
+                    price: price,
+                    img: compressedImageBase64,
+                    area: area,
+                    sizes: sizes || "حسب المتاح"
+                });
+                alert('تم إضافة المنتج بنجاح!');
+                document.getElementById('pName').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pSizes').value = '';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('previewImg').style.display = 'none';
+                compressedImageBase64 = "";
+                loadAdminProducts();
+            } catch (e) {
+                alert('حدث خطأ أثناء الإضافة، تأكد من حجم الصورة.');
+            }
         };
 
-        window.openPreview = function(imgSrc) {
-            document.getElementById('previewModalImg').src = imgSrc;
-            document.getElementById('previewModal').style.display = 'flex';
-        };
-
-        window.closePreview = function() {
-            document.getElementById('previewModal').style.display = 'none';
-        };
-
-        window.onload = () => {
-            loadProducts();
-            
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                if (splash) {
-                    splash.classList.add('hidden');
+        // تم تصحيح سطر الحذف هنا:
+        window.deleteProduct = async function(productId) {
+            if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
+                try {
+                    await deleteDoc(doc(db, "products", productId));
+                    alert('تم حذف العرض بنجاح');
+                    loadAdminProducts();
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    alert('خطأ في الحذف، تأكد من صلاحيات قاعدة البيانات في Firebase');
                 }
-            }, 2000);
+            }
         };
+
+        window.onload = loadAdminProducts;
     </script>
 </head>
 <body>
 
-    <!-- شاشة اللوقو الافتتاحية -->
-    <div id="splashScreen">
-        <img src="IMG-20260925-WA0048.jpg" alt="Mohamed Store Logo" class="splash-logo" onerror="this.parentElement.style.display='none';">
-    </div>
-
-    <!-- شريط الملاحة العلوي -->
-    <div class="navbar">
-        <div class="brand-container">
-            <img src="IMG-20260925-WA0048.jpg" alt="Mohamed Store Logo" class="brand-logo-img" onerror="this.style.display='none';">
-            <span class="brand-title">Mohamed Store</span>
-        </div>
-    </div>
-
-    <div class="tabs-container" id="tabsContainer">
-        <button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>
-        <button class="tab-btn" onclick="filterArea('عطبرة', this)">عطبرة</button>
-        <button class="tab-btn" onclick="filterArea('أمدرمان', this)">أمدرمان</button>
-        <button class="tab-btn" onclick="filterArea('بورتسودان', this)">بورتسودان</button>
-    </div>
-
     <div class="container">
-        <div class="products-grid" id="productsGrid">
-            <p style="text-align: center; width: 100%; grid-column: 1/-1; color: #fff;">جاري تحميل العروض...</p>
-        </div>
-    </div>
+        <h1>⚙️ لوحة إدارة Mohamed Store</h1>
 
-    <div class="modal" id="orderModal">
-        <div class="modal-content">
-            <div class="modal-header">تأكيد بيانات الطلب</div>
+        <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">إضافة عرض جديد</h2>
+            
             <div class="form-group">
-                <label>اسمك الكامل</label>
-                <input type="text" id="custName" placeholder="مثال: محمد أحمد">
+                <label>اسم المنتج</label>
+                <input type="text" id="pName" placeholder="مثال: بجامة رجالية">
             </div>
-            <div class="form-group">
-                <label>رقم هاتفك للتواصل</label>
-                <input type="tel" id="custPhone" placeholder="مثال: 0912345678">
-            </div>
-            <div class="form-group">
-                <label>المقاس المطلوب (اختياري)</label>
-                <input type="text" id="custSize" placeholder="مثال: L أو 42 أو اكتب المقاس">
-            </div>
-            <div class="form-group">
-                <label>المنطقة والعنوان الدقيق</label>
-                <input type="text" id="custAddress" placeholder="مثال: عطبرة - حي المطار">
-            </div>
-            <button class="btn-confirm" onclick="submitOrderToWhatsApp()">إرسال الطلب عبر الواتساب</button>
-            <button class="btn-close" onclick="closeOrderModal()">إلغاء</button>
-        </div>
-    </div>
 
-    <div class="modal" id="previewModal" onclick="closePreview()">
-        <div class="modal-content" style="background: transparent; border: none; text-align: center;">
-            <img id="previewModalImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+            <div class="form-group">
+                <label>السعر (بالجنيه السوداني)</label>
+                <input type="number" id="pPrice" placeholder="مثال: 1200">
+            </div>
+
+            <div class="form-group">
+                <label>المنطقة المتاحة</label>
+                <select id="pArea">
+                    <option value="عطبرة">عطبرة</option>
+                    <option value="أمدرمان">أمدرمان</option>
+                    <option value="بورتسودان">بورتسودان</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>المقاسات المتوفرة</label>
+                <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو 40, 41, 42">
+            </div>
+
+            <div class="form-group">
+                <label>صورة المنتج</label>
+                <label for="fileInput" class="file-upload-btn">📷 اختيار صورة من المعرض</label>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <img id="previewImg" class="img-preview" alt="معاينة الصورة">
+            </div>
+
+            <button class="btn-add" onclick="addProduct()">إضافة العرض الآن</button>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">المنتجات الحالية</h2>
+            <div id="adminProductsList">جاري التحميل...</div>
         </div>
     </div>
 
