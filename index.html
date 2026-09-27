@@ -1,244 +1,254 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohammed Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <title>متجر محمد ستور | Mohamed Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --glass-bg: rgba(255, 255, 255, 0.78);
-            --glass-border: rgba(255, 255, 255, 0.85);
-            --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-            --text-dark: #050505;
-            --text-muted: #2d3748;
-            --accent-blue: #1d4ed8;
-            --radius-main: 24px;
-            --radius-card: 16px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Tajawal', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: #000000;
-            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000000 75%);
-            color: var(--text-dark);
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: #0f172a; 
+            color: #f8fafc; 
             min-height: 100vh;
-            padding: 20px 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
+            padding-top: 70px;
+            padding-bottom: 30px;
         }
 
-        .glass-window {
-            width: 100%;
-            max-width: 480px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px) saturate(200%);
-            -webkit-backdrop-filter: blur(25px) saturate(200%);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-main);
-            box-shadow: var(--glass-shadow);
-            padding: 24px 20px;
-            position: relative;
-        }
-
-        .header-box {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 22px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-            text-align: right;
-        }
-
-        .logo-img {
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2.5px solid #ffffff;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            flex-shrink: 0;
-        }
-
-        .header-titles {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .welcome-title {
-            font-size: 21px;
-            font-weight: 900;
-            color: var(--text-dark);
-            letter-spacing: -0.3px;
-        }
-
-        .welcome-sub {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-top: 3px;
-            line-height: 1.4;
-        }
-
-        .form-group {
-            text-align: right;
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 800;
-            font-size: 14px;
-            margin-bottom: 6px;
-            color: var(--text-dark);
-        }
-
-        select, input {
-            width: 100%;
-            padding: 13px 15px;
-            border: 1.5px solid rgba(0, 0, 0, 0.15);
-            border-radius: var(--radius-card);
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-dark);
-            outline: none;
-            background: rgba(255, 255, 255, 0.85);
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 65px;
+            background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(10px);
-            transition: all 0.2s ease-in-out;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        select:focus, input:focus {
-            border-color: var(--accent-blue);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #38bdf8;
         }
 
-        .products-section {
-            margin-top: 20px;
-            text-align: right;
+        /* Filter Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .section-header {
-            font-size: 16px;
-            font-weight: 900;
-            margin-bottom: 12px;
-            color: var(--text-dark);
-            border-bottom: 2px solid rgba(0,0,0,0.1);
-            padding-bottom: 6px;
+        .tab-btn {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Container & Cards */
+        .container { max-width: 800px; margin: 0 auto; padding: 10px 20px; }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
         }
 
         .product-card {
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: var(--radius-card);
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid #334155;
             overflow: hidden;
-            margin-bottom: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInSlide 0.5s ease forwards;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #0f172a;
         }
 
         .product-img {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
-            background-color: #000;
+            transition: transform 0.4s ease;
         }
 
-        .product-info {
-            padding: 14px;
-        }
+        .product-details { padding: 15px; }
 
         .product-title {
             font-size: 16px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 4px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #f8fafc;
         }
 
         .product-price {
-            font-size: 17px;
-            font-weight: 900;
-            color: var(--accent-blue);
-            margin-bottom: 10px;
-        }
-
-        .sizes-title {
-            font-size: 12px;
+            font-size: 18px;
             font-weight: 800;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+            color: #38bdf8;
+            margin-bottom: 12px;
         }
 
-        .sizes-options {
+        .sizes-box {
             display: flex;
             gap: 6px;
-            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
 
         .size-btn {
-            padding: 7px 14px;
-            border: 1.5px solid rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            background: #ffffff;
-            color: var(--text-dark);
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
             cursor: pointer;
+        }
+
+        .size-btn.selected {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+            font-weight: bold;
+        }
+
+        .btn-order {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-order:hover { background: #1d4ed8; }
+
+        /* Order Form Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            animation: zoomIn 0.3s ease;
+        }
+
+        .modal-header {
             font-weight: 800;
+            font-size: 18px;
+            color: #38bdf8;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #cbd5e1;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1.5px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .btn-close {
+            width: 100%;
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            padding: 8px;
+            margin-top: 5px;
+            cursor: pointer;
             font-size: 13px;
         }
 
-        .size-btn.active {
-            background-color: var(--text-dark);
-            color: #ffffff;
-            border-color: var(--text-dark);
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #1d4ed8 0%, #0f172a 100%);
-            color: #ffffff;
-            border: none;
-            border-radius: var(--radius-card);
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
-
-        .success-card {
-            display: none;
-            padding: 20px 10px;
-            text-align: center;
-        }
-
-        .success-title {
-            font-size: 20px;
-            font-weight: 900;
-            color: #14532d;
-            margin-bottom: 8px;
-        }
-
-        .success-desc {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        .hidden { display: none; }
     </style>
 
-    <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -256,134 +266,171 @@
         const db = getFirestore(app);
 
         let allProducts = [];
-        let selectedSize = "M";
+        let selectedSizes = {};
+        let currentOrder = {};
 
-        window.filterProducts = async function() {
-            const area = document.getElementById('userLocation').value;
-            const listContainer = document.getElementById('productList');
-            listContainer.innerHTML = "جاري تحميل العروض المتاحة...";
-
-            document.getElementById('productsSection').classList.remove('hidden');
-
+        async function loadProducts() {
+            const grid = document.getElementById('productsGrid');
             try {
-                if(allProducts.length === 0) {
-                    const querySnapshot = await getDocs(collection(db, "products"));
-                    querySnapshot.forEach((docSnap) => {
-                        allProducts.push({ id: docSnap.id, ...docSnap.data() });
-                    });
-                }
-
-                listContainer.innerHTML = "";
-                const filtered = allProducts.filter(p => p.area === area || area === "khartoum");
-
-                if(filtered.length === 0) {
-                    listContainer.innerHTML = "<p style='text-align:center; padding: 10px;'>لا توجد عروض متاحة في هذه المنطقة حالياً</p>";
-                    return;
-                }
-
-                filtered.forEach(p => {
-                    let sizesHTML = (p.sizes || ["M"]).map((s, index) => `<button class="size-btn ${index === 0 ? 'active' : ''}" onclick="selectSize(this, '${s}')">${s}</button>`).join('');
-                    
-                    listContainer.innerHTML += `
-                        <div class="product-card">
-                            <img src="${p.img}" alt="${p.name}" class="product-img">
-                            <div class="product-info">
-                                <h3 class="product-title">${p.name}</h3>
-                                <div class="product-price">${p.price}</div>
-                                <div class="sizes-title">حدد المقاس المناسب:</div>
-                                <div class="sizes-options">${sizesHTML}</div>
-                            </div>
-                        </div>
-                    `;
-                });
+                const querySnapshot = await getDocs(collection(db, "products"));
+                allProducts = [];
+                querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
+                renderProducts(allProducts);
             } catch (e) {
-                listContainer.innerHTML = "حدث خطأ أثناء تحميل البيانات: " + e.message;
+                grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل المنتجات</p>';
+            }
+        }
+
+        window.filterArea = function(area, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (area === 'all') {
+                renderProducts(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.area === area);
+                renderProducts(filtered);
             }
         };
 
-        window.selectSize = function(btn, size) {
-            let siblings = btn.parentElement.querySelectorAll('.size-btn');
-            siblings.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            selectedSize = size;
-        };
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = "";
 
-        window.submitOrder = function() {
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const address = document.getElementById('custAddress').value;
-
-            if(!name || !phone || !address) {
-                alert('يرجى ملء جميع بيانات التوصيل للإتمام');
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: #94a3b8; padding: 40px;">لا توجد عروض متوفرة حالياً في هذه المنطقة</p>';
                 return;
             }
 
-            document.getElementById('orderFormFlow').style.display = 'none';
-            document.getElementById('successCard').style.display = 'block';
+            products.forEach(p => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="img-wrapper" onclick="openPreview('${p.img}')">
+                            <img src="${p.img}" class="product-img" alt="${p.name}">
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">${p.name}</h3>
+                            <div class="product-price">${p.price} ج.س</div>
+                            <div class="sizes-box">
+                                <button class="size-btn" onclick="selectSize('${p.id}', 'S', this)">S</button>
+                                <button class="size-btn" onclick="selectSize('${p.id}', 'M', this)">M</button>
+                                <button class="size-btn" onclick="selectSize('${p.id}', 'L', this)">L</button>
+                                <button class="size-btn" onclick="selectSize('${p.id}', 'XL', this)">XL</button>
+                            </div>
+                            <button class="btn-order" onclick="openOrderModal('${p.name}', '${p.price}', '${p.id}')">طلب العرض عبر واتساب 💬</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.selectSize = function(productId, size, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedSizes[productId] = size;
         };
+
+        window.openOrderModal = function(name, price, id) {
+            currentOrder = {
+                name: name,
+                price: price,
+                size: selectedSizes[id] || 'M (افتراضي)'
+            };
+            document.getElementById('orderModal').style.display = 'flex';
+        };
+
+        window.closeOrderModal = function() {
+            document.getElementById('orderModal').style.display = 'none';
+        };
+
+        window.submitOrderToWhatsApp = function() {
+            const customerName = document.getElementById('custName').value.trim();
+            const customerPhone = document.getElementById('custPhone').value.trim();
+            const customerAddress = document.getElementById('custAddress').value.trim();
+
+            if (!customerName || !customerPhone || !customerAddress) {
+                alert('يرجى كتابة الاسم، رقم الهاتف، والمنطقة/العنوان الدقيق لإتمام الطلب.');
+                return;
+            }
+
+            const myWhatsAppNumber = "249125381595"; // ⚠️ استبدل هذا الرقم برقم الواتساب الخاص بك بالصيغة الدولية
+
+            const text = ` *طلب جديد - متجر محمد ستار*%0A` +
+                         `----------------------------%0A` +
+                         ` *المنتج:* ${currentOrder.name}%0A` +
+                         ` *المقاس:* ${currentOrder.size}%0A` +
+                         ` *السعر:* ${currentOrder.price} ج.س%0A` +
+                         `----------------------------%0A` +
+                         ` *اسم الزبون:* ${customerName}%0A` +
+                         ` *رقم الزبون:* ${customerPhone}%0A` +
+                         ` *المنطقة والدنوان الدقيق:* ${customerAddress}`;
+
+            window.open(`https://wa.me/${myWhatsAppNumber}?text=${text}`, '_blank');
+            closeOrderModal();
+        };
+
+        window.openPreview = function(imgSrc) {
+            document.getElementById('previewModalImg').src = imgSrc;
+            document.getElementById('previewModal').style.display = 'flex';
+        };
+
+        window.closePreview = function() {
+            document.getElementById('previewModal').style.display = 'none';
+        };
+
+        window.onload = loadProducts;
     </script>
 </head>
 <body>
 
-<div class="glass-window">
+    <!-- Header Navbar -->
+    <div class="navbar">
+        <div class="brand-logo" >متجر محمد ستور</div>
+    </div>
 
-    <div id="orderFormFlow">
-        <div class="header-box">
-            <img src="IMG-20260925-WA0048.jpg" alt="MOHAMMED STORE" class="logo-img">
-            <div class="header-titles">
-                <h1 class="welcome-title">Mohammed Store</h1>
-                <p class="welcome-sub">Select your area to view the best available offers</p>
-            </div>
-        </div>
+    <!-- Tabs Filter -->
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>
+        <button class="tab-btn" onclick="filterArea('khartoum', this)">الخرطوم</button>
+        <button class="tab-btn" onclick="filterArea('omdurman', this)">أم درمان</button>
+        <button class="tab-btn" onclick="filterArea('bahri', this)">بحري</button>
+    </div>
 
-        <div class="form-group">
-            <label for="userLocation">المنطقة أو المدينة</label>
-            <select id="userLocation" onchange="filterProducts()">
-                <option value="" disabled selected>-- حدد المنطقة --</option>
-                <option value="khartoum">الخرطوم</option>
-                <option value="omdurman">أم درمان</option>
-                <option value="bahri">بحري</option>
-            </select>
-        </div>
-
-        <div id="productsSection" class="products-section hidden">
-            <h2 class="section-header">العروض المتاحة في منطقتك</h2>
-
-            <div id="productList">
-                <!-- المنتجات تظهر تلقائياً من قاعدة البيانات -->
-            </div>
-
-            <h2 class="section-header" style="margin-top: 25px;">بيانات التوصيل</h2>
-            
-            <div class="form-group">
-                <label>الاسم الكامل</label>
-                <input type="text" id="custName" placeholder="أدخل اسمك الثلاثي">
-            </div>
-
-            <div class="form-group">
-                <label>رقم الهاتف</label>
-                <input type="tel" id="custPhone" placeholder="0912345678">
-            </div>
-
-            <div class="form-group">
-                <label>العنوان بالتفصيل</label>
-                <input type="text" id="custAddress" placeholder="الحي، الشارع، ألمع معلم قريب">
-            </div>
-
-            <button class="btn-submit" onclick="submitOrder()">تأكيد الطلب الآن</button>
+    <!-- Products Grid -->
+    <div class="container">
+        <div class="products-grid" id="productsGrid">
+            <p style="text-align: center; width: 100%; grid-column: 1/-1;">جاري تحميل العروض...</p>
         </div>
     </div>
 
-    <div id="successCard" class="success-card">
-        <h2 class="success-title">تمت الطلبية بنجاح</h2>
-        <p class="success-desc">
-            نشكرك على التسوق من <strong>Mohammed Store</strong>.<br>
-            ستصلك الشحنة في أسرع وقت بأمر الله.<br>
-            سيتواصل معك مندوب التوصيل لتأكيد الموعد.
-        </p>
+    <!-- Customer Details Form Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">تأكيد بيانات الطلب</div>
+            <div class="form-group">
+                <label>اسمك الكامل</label>
+                <input type="text" id="custName" placeholder="مثال: محمد أحمد">
+            </div>
+            <div class="form-group">
+                <label>رقم هاتفك للتواصل</label>
+                <input type="tel" id="custPhone" placeholder="مثال: 0912345678">
+            </div>
+            <div class="form-group">
+                <label>المنطقة والعنوان الدقيق</label>
+                <input type="text" id="custAddress" placeholder="مثال: الخرطوم - الرياض - شارع المشتل">
+            </div>
+            <button class="btn-confirm" onclick="submitOrderToWhatsApp()">إرسال الطلب عبر الواتساب 📲</button>
+            <button class="btn-close" onclick="closeOrderModal()">إلغاء</button>
+        </div>
     </div>
 
-</div>
+    <!-- Image Preview Modal -->
+    <div class="modal" id="previewModal" onclick="closePreview()">
+        <div class="modal-content" style="background: transparent; border: none; text-align: center;">
+            <img id="previewModalImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #38bdf8;">
+        </div>
+    </div>
 
 </body>
 </html>
