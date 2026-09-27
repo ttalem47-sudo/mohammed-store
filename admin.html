@@ -3,73 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohammed store | Admin</title>
+    <title>لوحة التحكم - Mohamed Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        
-        body { 
-            background: url('Screenshot_٢٠٢٦٠٩٢٧_١٤٤٥٣٩_com_google_android_googlequicksearchbox_GoogleAppActivi_edit_890925498841021') no-repeat center center fixed; 
-            background-size: cover;
-            padding: 20px; 
-            color: #f8fafc; 
-            min-height: 100vh;
-        }
-
+        body { background: #0f172a; color: #f8fafc; padding: 20px; min-height: 100vh; }
         .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 24px; color: #fbbf24; margin-bottom: 20px; text-align: center; }
         
-        .header { 
-            background: rgba(15, 23, 42, 0.75); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 16px; 
-            margin-bottom: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            backdrop-filter: blur(12px); 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .card { 
-            background: rgba(15, 23, 42, 0.75); 
-            padding: 25px; 
-            border-radius: 16px; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.37); 
-            margin-bottom: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            backdrop-filter: blur(12px); 
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 700; color: #cbd5e1; font-size: 14px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: #1e293b;
+            color: #fff;
+            font-size: 14px;
         }
 
-        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: #38bdf8; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: #cbd5e1; }
-        input, select { width: 100%; padding: 10px; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 14px; background: rgba(15, 23, 42, 0.85); color: #fff; }
-        
-        .file-upload-box { 
-            border: 2px dashed #38bdf8; 
-            padding: 20px; 
-            text-align: center; 
-            border-radius: 8px; 
-            background: rgba(56, 189, 248, 0.1); 
-            cursor: pointer; 
-            color: #38bdf8; 
-            font-weight: 700;
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
         }
-        .file-upload-box input { display: none; }
-        .preview-img { max-width: 120px; max-height: 120px; border-radius: 8px; margin-top: 10px; display: none; object-fit: cover; border: 2px solid #38bdf8; }
-        .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; }
-        .btn-add:hover { background: #1d4ed8; }
-        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .btn-add:hover { background: #15803d; }
+
+        .product-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
         .item-info { display: flex; align-items: center; gap: 12px; }
-        .item-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -83,131 +87,72 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let finalCompressedImage = "";
-
-        window.toggleCustomArea = function(select) {
-            const customInput = document.getElementById('customAreaInput');
-            if (select.value === 'custom') {
-                customInput.style.display = 'block';
-            } else {
-                customInput.style.display = 'none';
+        async function loadAdminProducts() {
+            const list = document.getElementById('adminProductsList');
+            list.innerHTML = "جاري التحميل...";
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                list.innerHTML = "";
+                querySnapshot.forEach(docSnap => {
+                    const p = docSnap.data();
+                    list.innerHTML += `
+                        <div class="product-list-item">
+                            <div class="item-info">
+                                <img src="${p.img}" class="item-img">
+                                <div>
+                                    <div style="font-weight: bold;">${p.name}</div>
+                                    <div style="color: #fbbf24; font-size: 13px;">${p.price} ج.س | 📍 ${p.area || 'غير محدد'}</div>
+                                    <div style="color: #cbd5e1; font-size: 12px;">المقاسات: ${p.sizes || 'غير محددة'}</div>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف</button>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                list.innerHTML = "خطأ في تحميل المنتجات";
             }
-        };
+        }
 
-        window.handleImageSelect = function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        const maxWidth = 300;
-                        const scale = maxWidth / img.width;
-                        canvas.width = maxWidth;
-                        canvas.height = img.height * scale;
-                        
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        finalCompressedImage = canvas.toDataURL('image/jpeg', 0.4);
-                        
-                        const preview = document.getElementById('imgPreview');
-                        preview.src = finalCompressedImage;
-                        preview.style.display = 'block';
-                        document.getElementById('uploadText').innerText = "تم تجهيز الصورة بنجاح";
-                    };
-                };
-                reader.readAsDataURL(file);
-            }
-        };
+        window.addProduct = async function() {
+            const name = document.getElementById('pName').value.trim();
+            const price = document.getElementById('pPrice').value.trim();
+            const img = document.getElementById('pImg').value.trim();
+            const area = document.getElementById('pArea').value;
+            const sizes = document.getElementById('pSizes').value.trim();
 
-        window.addNewProduct = async function() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            let area = document.getElementById('pArea').value;
-
-            if (area === 'custom') {
-                area = document.getElementById('customAreaInput').value.trim();
-            }
-
-            if(!name || !price || !area) {
-                alert('يرجى ملء بيانات اسم المنتج، السعر، والمنطقة');
+            if (!name || !price || !img) {
+                alert('يرجى ملء اسم المنتج، السعر، ورابط الصورة');
                 return;
             }
-
-            if(!finalCompressedImage) {
-                alert('يرجى اختيار صورة للعرض من المعرض أولاً');
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = "جاري حفظ العرض...";
 
             try {
                 await addDoc(collection(db, "products"), {
                     name: name,
                     price: price,
+                    img: img,
                     area: area,
-                    img: finalCompressedImage,
-                    sizes: ["S", "M", "L", "XL"],
-                    createdAt: serverTimestamp()
+                    sizes: sizes || "حسب المتاح"
                 });
-
+                alert('تم إضافه المنتج بنجاح!');
                 document.getElementById('pName').value = '';
                 document.getElementById('pPrice').value = '';
-                document.getElementById('customAreaInput').value = '';
-                document.getElementById('pImgFile').value = '';
-                document.getElementById('imgPreview').style.display = 'none';
-                document.getElementById('uploadText').innerText = "اضغط هنا لاختيار صورة العرض من المعرض";
-                finalCompressedImage = "";
-                
-                alert('تم نشر العرض بنجاح');
+                document.getElementById('pImg').value = '';
+                document.getElementById('pSizes').value = '';
                 loadAdminProducts();
             } catch (e) {
-                alert('حدث خطأ أثناء الحفظ: ' + e.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "نشر العرض في الموقع";
-            }
-        };
-
-        window.loadAdminProducts = async function() {
-            const list = document.getElementById('adminProductList');
-            list.innerHTML = "جاري تحميل العروض...";
-            try {
-                const querySnapshot = await getDocs(collection(db, "products"));
-                list.innerHTML = "";
-                if(querySnapshot.empty) {
-                    list.innerHTML = "لا توجد عروض حالياً";
-                    return;
-                }
-                querySnapshot.forEach((docSnap) => {
-                    const item = docSnap.data();
-                    list.innerHTML += `
-                        <div class="item-row">
-                            <div class="item-info">
-                                <img src="${item.img}" alt="صورة">
-                                <div>
-                                    <strong>${item.name}</strong><br>
-                                    <small style="color: #cbd5e1;">المنطقة: ${item.area} | السعر: ${item.price}</small>
-                                </div>
-                            </div>
-                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف العرض</button>
-                        </div>
-                    `;
-                });
-            } catch (e) {
-                list.innerHTML = "خطأ في تحميل العروض: " + e.message;
+                alert('حدث خطأ أثناء الإضافة');
             }
         };
 
         window.deleteProduct = async function(id) {
-            if(confirm('هل أنت تأكد من حذف هذا العرض؟')) {
-                await deleteDoc(doc(db, "products", id));
-                loadAdminProducts();
+            if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    loadAdminProducts();
+                } catch (e) {
+                    alert('خطأ في الحذف');
+                }
             }
         };
 
@@ -216,52 +161,50 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>Mohammed store | Admin</h1>
-        <span>الاتصال المباشر مفعل</span>
-    </div>
+    <div class="container">
+        <h1>⚙️ لوحة إدارة Mohamed Store</h1>
 
-    <div class="card">
-        <h2>إضافة عرض جديد</h2>
-        <div class="form-grid">
-            <div>
-                <label>اسم القطعة / العرض</label>
-                <input type="text" id="pName" placeholder="مثال: قميص رجالي كاجوال">
+        <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">إضافة عرض جديد</h2>
+            
+            <div class="form-group">
+                <label>اسم المنتج</label>
+                <input type="text" id="pName" placeholder="مثال: بجامة رجالية">
             </div>
-            <div>
-                <label>السعر (ج.س)</label>
-                <input type="text" id="pPrice" placeholder="مثال: 15000">
+
+            <div class="form-group">
+                <label>السعر (بالجنيه السوداني)</label>
+                <input type="number" id="pPrice" placeholder="مثال: 1200">
             </div>
-            <div>
-                <label>تحديد المنطقة المخصصة</label>
-                <select id="pArea" onchange="toggleCustomArea(this)">
+
+            <div class="form-group">
+                <label>المنطقة المتاحة</label>
+                <select id="pArea">
                     <option value="عطبرة">عطبرة</option>
                     <option value="أمدرمان">أمدرمان</option>
                     <option value="بورتسودان">بورتسودان</option>
-                    <option value="custom">كتابة منطقة جديدة...</option>
                 </select>
-                <input type="text" id="customAreaInput" placeholder="أدخل اسم المنطقة الجديدة" style="display: none; margin-top: 10px;">
             </div>
-            <div>
-                <label>صورة العرض من المعرض</label>
-                <div class="file-upload-box" onclick="document.getElementById('pImgFile').click()">
-                    <span id="uploadText">اضغط هنا لاختيار صورة العرض من المعرض</span>
-                    <input type="file" id="pImgFile" accept="image/*" onchange="handleImageSelect(event)">
-                </div>
-                <center><img id="imgPreview" class="preview-img" src="" alt="معاينة"></center>
-            </div>
-        </div>
-        <button class="btn-add" id="submitBtn" onclick="addNewProduct()">نشر العرض في الموقع</button>
-    </div>
 
-    <div class="card">
-        <h2>العروض النشطة حالياً</h2>
-        <div id="adminProductList">
-            جاري تحميل العروض...
+            <div class="form-group">
+                <label>المقاسات المتوفرة (أكتبها كما تحب)</label>
+                <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو 40, 41, 42 أو اكتب المقاسات المتاحة">
+            </div>
+
+            <div class="form-group">
+                <label>رابط الصورة (URL)</label>
+                <input type="text" id="pImg" placeholder="https://...">
+            </div>
+
+            <button class="btn-add" onclick="addProduct()">إضافة العرض الآن</button>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">المنتجات الحالية</h2>
+            <div id="adminProductsList">جاري التحميل...</div>
         </div>
     </div>
-</div>
 
 </body>
 </html>
+ 
