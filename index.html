@@ -277,10 +277,29 @@
                 const querySnapshot = await getDocs(collection(db, "products"));
                 allProducts = [];
                 querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
+                
+                updateAreaTabs();
                 renderProducts(allProducts);
             } catch (e) {
                 grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل المنتجات</p>';
             }
+        }
+
+        function updateAreaTabs() {
+            const tabsContainer = document.getElementById('tabsContainer');
+            const defaultAreas = ["عطبرة", "أمدرمان", "بورتسودان"];
+            const existingAreas = new Set(defaultAreas);
+
+            allProducts.forEach(p => {
+                if (p.area) existingAreas.add(p.area);
+            });
+
+            let html = `<button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>`;
+            existingAreas.forEach(area => {
+                html += `<button class="tab-btn" onclick="filterArea('${area}', this)">${area}</button>`;
+            });
+
+            tabsContainer.innerHTML = html;
         }
 
         window.filterArea = function(area, btn) {
@@ -390,11 +409,11 @@
         <div class="brand-logo">Mohammed store</div>
     </div>
 
-    <div class="tabs-container">
+    <div class="tabs-container" id="tabsContainer">
         <button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>
-        <button class="tab-btn" onclick="filterArea('khartoum', this)">الخرطوم</button>
-        <button class="tab-btn" onclick="filterArea('omdurman', this)">أم درمان</button>
-        <button class="tab-btn" onclick="filterArea('bahri', this)">بحري</button>
+        <button class="tab-btn" onclick="filterArea('عطبرة', this)">عطبرة</button>
+        <button class="tab-btn" onclick="filterArea('أمدرمان', this)">أمدرمان</button>
+        <button class="tab-btn" onclick="filterArea('بورتسودان', this)">بورتسودان</button>
     </div>
 
     <div class="container">
@@ -416,7 +435,7 @@
             </div>
             <div class="form-group">
                 <label>المنطقة والعنوان الدقيق</label>
-                <input type="text" id="custAddress" placeholder="مثال: الخرطوم - الرياض - شارع المشتل">
+                <input type="text" id="custAddress" placeholder="مثال: عطبرة - حي المطار">
             </div>
             <button class="btn-confirm" onclick="submitOrderToWhatsApp()">إرسال الطلب عبر الواتساب</button>
             <button class="btn-close" onclick="closeOrderModal()">إلغاء</button>
