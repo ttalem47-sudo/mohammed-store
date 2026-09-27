@@ -3,24 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | متجر محمد ستور</title>
+    <title>Mohammed store | Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        body { background-color: #0f172a; padding: 20px; color: #f8fafc; }
+        
+        body { 
+            background: url('Screenshot_٢٠٢٦٠٩٢٧_١٤٤٥٣٩_com_google_android_googlequicksearchbox_GoogleAppActivi_edit_890925498841021') no-repeat center center fixed; 
+            background-size: cover;
+            padding: 20px; 
+            color: #f8fafc; 
+            min-height: 100vh;
+        }
+
         .container { max-width: 800px; margin: 0 auto; }
-        .header { background: #1e293b; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .card { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
-        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; color: #38bdf8; }
+        
+        .header { 
+            background: rgba(15, 23, 42, 0.75); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(12px); 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+        }
+
+        .card { 
+            background: rgba(15, 23, 42, 0.75); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.37); 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(12px); 
+        }
+
+        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; color: #38bdf8; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: #cbd5e1; }
-        input, select { width: 100%; padding: 10px; border: 1.5px solid #475569; border-radius: 8px; font-size: 14px; background: #0f172a; color: #fff; }
+        input, select { width: 100%; padding: 10px; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 14px; background: rgba(15, 23, 42, 0.85); color: #fff; }
+        
         .file-upload-box { 
             border: 2px dashed #38bdf8; 
             padding: 20px; 
             text-align: center; 
             border-radius: 8px; 
-            background: rgba(56, 189, 248, 0.05); 
+            background: rgba(56, 189, 248, 0.1); 
             cursor: pointer; 
             color: #38bdf8; 
             font-weight: 700;
@@ -29,7 +61,7 @@
         .preview-img { max-width: 120px; max-height: 120px; border-radius: 8px; margin-top: 10px; display: none; object-fit: cover; border: 2px solid #38bdf8; }
         .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; }
         .btn-add:hover { background: #1d4ed8; }
-        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #334155; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .item-info { display: flex; align-items: center; gap: 12px; }
         .item-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
         .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
@@ -53,7 +85,15 @@
 
         let finalCompressedImage = "";
 
-        // ضغط الصورة إلى أقصى درجة ليتقبلها مجاناً في Firestore
+        window.toggleCustomArea = function(select) {
+            const customInput = document.getElementById('customAreaInput');
+            if (select.value === 'custom') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+            }
+        };
+
         window.handleImageSelect = function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -65,21 +105,18 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // تصغير أبعاد الصورة لـ 300 بكسل لتوفير المساحة
                         const maxWidth = 300;
                         const scale = maxWidth / img.width;
                         canvas.width = maxWidth;
                         canvas.height = img.height * scale;
                         
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
-                        // ضغط الجودة لـ 40%
                         finalCompressedImage = canvas.toDataURL('image/jpeg', 0.4);
                         
                         const preview = document.getElementById('imgPreview');
                         preview.src = finalCompressedImage;
                         preview.style.display = 'block';
-                        document.getElementById('uploadText').innerText = "تم تجهيز الصورة وضغطها بنجاح ✅";
+                        document.getElementById('uploadText').innerText = "تم تجهيز الصورة بنجاح";
                     };
                 };
                 reader.readAsDataURL(file);
@@ -89,10 +126,14 @@
         window.addNewProduct = async function() {
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
-            const area = document.getElementById('pArea').value;
+            let area = document.getElementById('pArea').value;
 
-            if(!name || !price) {
-                alert('يرجى ملء بيانات اسم المنتج والسعر');
+            if (area === 'custom') {
+                area = document.getElementById('customAreaInput').value.trim();
+            }
+
+            if(!name || !price || !area) {
+                alert('يرجى ملء بيانات اسم المنتج، السعر، والمنطقة');
                 return;
             }
 
@@ -117,12 +158,13 @@
 
                 document.getElementById('pName').value = '';
                 document.getElementById('pPrice').value = '';
+                document.getElementById('customAreaInput').value = '';
                 document.getElementById('pImgFile').value = '';
                 document.getElementById('imgPreview').style.display = 'none';
-                document.getElementById('uploadText').innerText = "📷 اضغط هنا لاختيار صورة العرض من المعرض";
+                document.getElementById('uploadText').innerText = "اضغط هنا لاختيار صورة العرض من المعرض";
                 finalCompressedImage = "";
                 
-                alert('تم نشر العرض بنجاح وبصورتك الحقيقية!');
+                alert('تم نشر العرض بنجاح');
                 loadAdminProducts();
             } catch (e) {
                 alert('حدث خطأ أثناء الحفظ: ' + e.message);
@@ -150,7 +192,7 @@
                                 <img src="${item.img}" alt="صورة">
                                 <div>
                                     <strong>${item.name}</strong><br>
-                                    <small style="color: #94a3b8;">المنطقة: ${item.area} | السعر: ${item.price}</small>
+                                    <small style="color: #cbd5e1;">المنطقة: ${item.area} | السعر: ${item.price}</small>
                                 </div>
                             </div>
                             <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف العرض</button>
@@ -164,7 +206,7 @@
 
         window.deleteProduct = async function(id) {
             if(confirm('هل أنت تأكد من حذف هذا العرض؟')) {
-                await deleteDoc(doc(docSnap => docSnap.id === id ? doc(db, "products", id) : null));
+                await deleteDoc(doc(db, "products", id));
                 loadAdminProducts();
             }
         };
@@ -176,7 +218,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>لوحة إدارة متجر محمد ستور</h1>
+        <h1>Mohammed store | Admin</h1>
         <span>الاتصال المباشر مفعل</span>
     </div>
 
@@ -193,16 +235,18 @@
             </div>
             <div>
                 <label>تحديد المنطقة المخصصة</label>
-                <select id="pArea">
-                    <option value="khartoum">الخرطوم</option>
-                    <option value="omdurman">أم درمان</option>
-                    <option value="bahri">بحري</option>
+                <select id="pArea" onchange="toggleCustomArea(this)">
+                    <option value="عطبرة">عطبرة</option>
+                    <option value="أمدرمان">أمدرمان</option>
+                    <option value="بورتسودان">بورتسودان</option>
+                    <option value="custom">كتابة منطقة جديدة...</option>
                 </select>
+                <input type="text" id="customAreaInput" placeholder="أدخل اسم المنطقة الجديدة" style="display: none; margin-top: 10px;">
             </div>
             <div>
                 <label>صورة العرض من المعرض</label>
                 <div class="file-upload-box" onclick="document.getElementById('pImgFile').click()">
-                    <span id="uploadText">📷 اضغط هنا لاختيار صورة العرض من المعرض</span>
+                    <span id="uploadText">اضغط هنا لاختيار صورة العرض من المعرض</span>
                     <input type="file" id="pImgFile" accept="image/*" onchange="handleImageSelect(event)">
                 </div>
                 <center><img id="imgPreview" class="preview-img" src="" alt="معاينة"></center>
@@ -221,5 +265,3 @@
 
 </body>
 </html>
-
-
