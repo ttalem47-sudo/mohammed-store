@@ -37,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* النافذة الكريستالية الزجاجية الرئيسية */
         .glass-window {
             width: 100%;
             max-width: 480px;
@@ -53,7 +52,91 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* الهيدر: اللوجو بجانب النص */
+        /* ------------------ الواجهة الترحيبية ------------------ */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: fadeInFast 0.3s ease-out;
+        }
+
+        .hero-banner {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .hero-bg-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.65);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+            color: #ffffff;
+        }
+
+        .top-nav-bar {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+        }
+
+        .login-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .hero-text-content {
+            text-align: right;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .welcome-heading {
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: #ffffff;
+        }
+
+        .welcome-subtext {
+            font-size: 14px;
+            color: #e2e8f0;
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        /* ------------------ عناصر النماذج والأزرار ------------------ */
         .header-box {
             display: flex;
             align-items: center;
@@ -83,8 +166,6 @@
             font-size: 21px;
             font-weight: 900;
             color: var(--text-dark);
-            letter-spacing: -0.3px;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
         }
 
         .welcome-sub {
@@ -95,7 +176,6 @@
             line-height: 1.4;
         }
 
-        /* الحقول والنوافذ الداخلية */
         .form-group {
             text-align: right;
             margin-bottom: 16px;
@@ -107,7 +187,6 @@
             font-size: 14px;
             margin-bottom: 6px;
             color: var(--text-dark);
-            text-shadow: 0 1px 1px rgba(255,255,255,0.6);
         }
 
         select, input {
@@ -121,7 +200,6 @@
             outline: none;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 10px rgba(0,0,0,0.03);
             transition: all 0.2s ease-in-out;
         }
 
@@ -131,7 +209,6 @@
             box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
         }
 
-        /* الأقسام والبطاقات المنبثقة */
         .products-section {
             margin-top: 20px;
             text-align: right;
@@ -147,7 +224,6 @@
             padding-bottom: 6px;
         }
 
-        /* كروت المنتجات الزجاجية المنبثقة */
         .product-card {
             border: 1px solid rgba(255, 255, 255, 0.9);
             border-radius: var(--radius-card);
@@ -155,19 +231,12 @@
             margin-bottom: 16px;
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            transform: translateY(0);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .product-card:active {
-            transform: scale(0.99);
         }
 
         .product-img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            background-color: #000;
         }
 
         .product-info {
@@ -178,7 +247,6 @@
             font-size: 16px;
             font-weight: 800;
             color: var(--text-dark);
-            margin-bottom: 4px;
         }
 
         .product-price {
@@ -210,17 +278,14 @@
             cursor: pointer;
             font-weight: 800;
             font-size: 13px;
-            transition: all 0.15s ease;
         }
 
         .size-btn.active {
             background-color: var(--text-dark);
             color: #ffffff;
             border-color: var(--text-dark);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
         }
 
-        /* أزرار التنفيذ الفاخرة */
         .btn-submit {
             width: 100%;
             padding: 15px;
@@ -233,36 +298,15 @@
             cursor: pointer;
             margin-top: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            transition: transform 0.15s ease, background 0.2s ease;
         }
 
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-
-        /* بطاقة التأكيد الكريستالية */
         .success-card {
             display: none;
             padding: 20px 10px;
             text-align: center;
-            animation: fadeInFast 0.25s ease-out;
         }
 
-        .success-title {
-            font-size: 20px;
-            font-weight: 900;
-            color: #14532d;
-            margin-bottom: 8px;
-        }
-
-        .success-desc {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
         @keyframes fadeInFast {
             from { opacity: 0; transform: translateY(8px); }
@@ -274,17 +318,59 @@
 
 <div class="glass-window">
 
-    <div id="orderFormFlow">
-        <!-- الهيدر الأنيق: اللوجو بالجانب والنصوص واضحة -->
+    <!-- 1. واجهة الترحيب التفاعلية (تظهر أولاً للعميل) -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="hero-banner">
+            <!-- السطر 197: استبدل "your-hero-image.jpg" باسم صورتك -->
+            <img src="your-hero-image.jpg" alt="Welcome Banner" class="hero-bg-img">
+            
+            <div class="hero-overlay">
+                <div class="top-nav-bar">
+                    <button class="login-btn" onclick="showCustomerLogin()">تسجيل الدخول</button>
+                </div>
+                <div class="hero-text-content">
+                    <h1 class="welcome-heading">مرحبا بكم في mohammed store</h1>
+                    <p class="welcome-subtext">أحدث الصيحات والأناقة الفاخرة بين يديك</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="showCustomerLogin()">تسجيل الدخول ومتابعة التسوق</button>
+    </div>
+
+    <!-- 2. نموذج تسجيل دخول العميل (يظهر بعد ضغط الزر) -->
+    <div id="customerLoginForm" class="hidden" style="animation: fadeInFast 0.3s ease-out;">
+        <div class="header-box">
+            <img src="IMG-20260925-WA0048.jpg" alt="لوجو المتجر" class="logo-img">
+            <div class="header-titles">
+                <h1 class="welcome-title">تسجيل دخول العميل</h1>
+                <p class="welcome-sub">أدخل بياناتك للانتقال لاختيار منطقتك وعرض المنتجات المتاحة</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="loginName" placeholder="أدخل اسمك الكريم">
+        </div>
+
+        <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="loginPhone" placeholder="01xxxxxxxxx">
+        </div>
+
+        <button class="btn-submit" onclick="processCustomerLogin()">متابعة إلى اختيار المنطقة</button>
+    </div>
+
+    <!-- 3. واجهة اختيار المكان والتسوق (تظهر تلقائياً بعد دخول العميل) -->
+    <div id="orderFormFlow" class="hidden">
         <div class="header-box">
             <img src="IMG-20260925-WA0048.jpg" alt="لوجو متجر محمد ستار" class="logo-img">
             <div class="header-titles">
-                <h1 class="welcome-title">MOHAMMED STORE</h1>
+                <h1 class="welcome-title" id="displayCustomerGreeting">أهلاً بك</h1>
                 <p class="welcome-sub">اختر منطقتك لمشاهدة وتحديد أرقى العروض المتاحة لديك</p>
             </div>
         </div>
 
-        <!-- اختيار المنطقة -->
         <div class="form-group">
             <label for="userLocation">المنطقة أو المدينة</label>
             <select id="userLocation" onchange="filterProducts()">
@@ -295,43 +381,30 @@
             </select>
         </div>
 
-        <!-- العروض المتاحة -->
         <div id="productsSection" class="products-section hidden">
             <h2 class="section-header">العروض المتاحة في منطقتك</h2>
 
             <div id="productList">
-                <!-- المنتجات تظهر تلقائياً بدون تأخير -->
+                <!-- المنتجات المضافة من الأدمن تظهر هنا -->
             </div>
 
-            <!-- بيانات المستلم -->
             <h2 class="section-header" style="margin-top: 25px;">بيانات التوصيل</h2>
-            
-            <div class="form-group">
-                <label>الاسم الكامل</label>
-                <input type="text" id="custName" placeholder="أدخل اسمك الثلاثي">
-            </div>
-
-            <div class="form-group">
-                <label>رقم الهاتف</label>
-                <input type="tel" id="custPhone" placeholder="">
-            </div>
 
             <div class="form-group">
                 <label>العنوان بالتفصيل</label>
-                <input type="text" id="custAddress" placeholder="الحي، الشارع، ألمع معلم قريب">
+                <input type="text" id="custAddress" placeholder="الحي، الشارع، أقرب معلم">
             </div>
 
             <button class="btn-submit" onclick="submitOrder()">تأكيد الطلب الآن</button>
         </div>
     </div>
 
-    <!-- رسالة التأكيد -->
+    <!-- 4. شاشة التاكيد النهائية -->
     <div id="successCard" class="success-card">
-        <h2 class="success-title">تمت الطلبية بنجاح</h2>
-        <p class="success-desc">
+        <h2 style="color: #14532d; font-size: 20px; font-weight: 900; margin-bottom: 8px;">تمت الطلبية بنجاح</h2>
+        <p style="font-size: 14px; font-weight: 700; line-height: 1.6;">
             نشكرك على التسوق من <strong>متجر محمد ستار</strong>.<br>
-            ستصلك الشحنة في أسرع وقت بأمر الله.<br>
-            سيتواصل معك مندوب التوصيل لتأكيد الموعد.
+            ستصلك الشحنة في أسرع وقت بأمر الله.
         </p>
     </div>
 
@@ -339,53 +412,82 @@
 
 <script>
     const demoProducts = [
-        { id: 1, name: "طقم كاجوال صيفي فاخر", price: "25,000 ج.س", area: "khartoum", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500", sizes: ["S", "M", "L", "XL"] },
+        { id: 1, name: "طقم كاجوال صيفي فاخر", price: "25,000 ج.س", area: "Atbra", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500", sizes: ["S", "M", "L", "XL"] },
         { id: 2, name: "قميص قطني أنيق", price: "18,000 ج.س", area: "omdurman", img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500", sizes: ["M", "L", "XL"] },
-        { id: 3, name: "بنطال جينز عصري", price: "22,000 ج.س", area: "bahri", img: "https://images.unsplash.com/photo-1542272604-780c36856842?w=500", sizes: ["S", "M", "L"] }
+        { id: 3, name: "بنطال جينز عصري", price: "22,000 ج.س", area: "Port sudan", img: "https://images.unsplash.com/photo-1542272604-780c36856842?w=500", sizes: ["S", "M", "L"] }
     ];
 
-    let selectedSize = "M";
+    let currentCustomer = { name: "", phone: "" };
+    let selectedSizes = {};
+
+    function showCustomerLogin() {
+        document.getElementById('welcomeScreen').classList.add('hidden');
+        document.getElementById('customerLoginForm').classList.remove('hidden');
+    }
+
+    function processCustomerLogin() {
+        const name = document.getElementById('loginName').value;
+        const phone = document.getElementById('loginPhone').value;
+
+        if(!name.trim() || !phone.trim()) {
+            alert('يرجى إدخال الاسم ورقم الهاتف للمتابعة');
+            return;
+        }
+
+        currentCustomer.name = name;
+        currentCustomer.phone = phone;
+
+        document.getElementById('displayCustomerGreeting').innerText = `أهلاً بك، ${name}`;
+        document.getElementById('customerLoginForm').classList.add('hidden');
+        document.getElementById('orderFormFlow').classList.remove('hidden');
+    }
 
     function filterProducts() {
         const area = document.getElementById('userLocation').value;
         const listContainer = document.getElementById('productList');
         listContainer.innerHTML = "";
 
-        const filtered = demoProducts.filter(p => p.area === area || area === "khartoum");
+        const filtered = demoProducts.filter(p => p.area === area || p.area === "all");
 
-        filtered.forEach(p => {
-            let sizesHTML = p.sizes.map((s, index) => `<button class="size-btn ${index === 0 ? 'active' : ''}" onclick="selectSize(this, '${s}')">${s}</button>`).join('');
-            
-            listContainer.innerHTML += `
-                <div class="product-card">
-                    <img src="${p.img}" alt="${p.name}" class="product-img">
-                    <div class="product-info">
-                        <h3 class="product-title">${p.name}</h3>
-                        <div class="product-price">${p.price}</div>
-                        <div class="sizes-title">حدد المقاس المناسب:</div>
-                        <div class="sizes-options">${sizesHTML}</div>
+        if(filtered.length === 0) {
+            listContainer.innerHTML = `<p style="text-align:center; padding: 10px; font-weight:700;">لا توجد عروض متاحة حالياً في هذه المنطقة.</p>`;
+        } else {
+            filtered.forEach(p => {
+                if(!selectedSizes[p.id]) selectedSizes[p.id] = p.sizes[0];
+
+                let sizesHTML = p.sizes.map((s) => 
+                    `<button class="size-btn ${selectedSizes[p.id] === s ? 'active' : ''}" onclick="selectSize(this, ${p.id}, '${s}')">${s}</button>`
+                ).join('');
+                
+                listContainer.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.img}" alt="${p.name}" class="product-img">
+                        <div class="product-info">
+                            <h3 class="product-title">${p.name}</h3>
+                            <div class="product-price">${p.price}</div>
+                            <div class="sizes-title">حدد المقاس المناسب:</div>
+                            <div class="sizes-options">${sizesHTML}</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
 
         document.getElementById('productsSection').classList.remove('hidden');
     }
 
-    function selectSize(btn, size) {
+    function selectSize(btn, productId, size) {
         let siblings = btn.parentElement.querySelectorAll('.size-btn');
         siblings.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        selectedSize = size;
+        selectedSizes[productId] = size;
     }
 
     function submitOrder() {
-        const name = document.getElementById('custName').value;
-        const phone = document.getElementById('custPhone').value;
         const address = document.getElementById('custAddress').value;
 
-        if(!name || !phone || !address) {
-            alert('يرجى ملء جميع بيانات التوصيل للإتمام');
+        if(!address.trim()) {
+            alert('يرجى إدخال العنوان التفصيلي للتوصيل');
             return;
         }
 
