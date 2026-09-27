@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | متجر محمد ستار</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f1f5f9; padding: 20px; color: #1e293b; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header { background: #0f172a; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: #0f172a; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+        
+        .checkbox-group { display: flex; gap: 12px; margin-top: 5px; }
+        
+        .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; }
+        .btn-add:hover { background: #1d4ed8; }
+
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .item-info { display: flex; align-items: center; gap: 12px; }
+        .item-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>⚙️ لوحة إدارة متجر محمد ستار</h1>
+        <span>أهلاً بك يا مدير!</span>
+    </div>
+
+    <!-- إضافة عرض جديد -->
+    <div class="card">
+        <h2>إضافة عرض ملابس جديد</h2>
+        <div class="form-grid">
+            <div>
+                <label>اسم القطعة / العرض</label>
+                <input type="text" id="pName" placeholder="مثال: قميص رجالي كاجوال">
+            </div>
+            <div>
+                <label>السعر (ج.س)</label>
+                <input type="text" id="pPrice" placeholder="مثال: 15000">
+            </div>
+            <div>
+                <label>تحديد المنطقة المخصصة</label>
+                <select id="pArea">
+                    <option value="الخرطوم">الخرطوم</option>
+                    <option value="أم درمان">أم درمان</option>
+                    <option value="بحري">بحري</option>
+                </select>
+            </div>
+            <div>
+                <label>رابط صورة المنتج (URL)</label>
+                <input type="text" id="pImg" placeholder="https://...">
+            </div>
+            <div class="full-width">
+                <label>المقاسات المتوفرة</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" checked> S</label>
+                    <label><input type="checkbox" checked> M</label>
+                    <label><input type="checkbox" checked> L</label>
+                    <label><input type="checkbox" checked> XL</label>
+                </div>
+            </div>
+        </div>
+        <button class="btn-add" onclick="addNewProduct()">نشر العرض في الموقع</button>
+    </div>
+
+    <!-- العروض النشطة -->
+    <div class="card">
+        <h2>العروض النشطة حالياً</h2>
+        <div id="adminProductList">
+            <div class="item-row">
+                <div class="item-info">
+                    <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100" alt="صورة">
+                    <div>
+                        <strong>طقم كاجوال صيفي فاخر</strong><br>
+                        <small style="color: #64748b;">المنطقة: الخرطوم | السعر: 25,000 ج.س</small>
+                    </div>
+                </div>
+                <button class="btn-delete" onclick="deleteItem(this)">حذف العرض</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addNewProduct() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const area = document.getElementById('pArea').value;
+        let img = document.getElementById('pImg').value;
+
+        if(!name || !price) {
+            alert('يرجى ملء بيانات اسم المنتج والسعر!');
+            return;
+        }
+
+        if(!img) img = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100";
+
+        const list = document.getElementById('adminProductList');
+        list.innerHTML += `
+            <div class="item-row">
+                <div class="item-info">
+                    <img src="${img}" alt="صورة">
+                    <div>
+                        <strong>${name}</strong><br>
+                        <small style="color: #64748b;">المنطقة: ${area} | السعر: ${price} ج.س</small>
+                    </div>
+                </div>
+                <button class="btn-delete" onclick="deleteItem(this)">حذف العرض</button>
+            </div>
+        `;
+
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        document.getElementById('pImg').value = '';
+        alert('تم إضافة العرض بنجاح!');
+    }
+
+    function deleteItem(btn) {
+        btn.parentElement.remove();
+    }
+</script>
+
+</body>
+</html>
