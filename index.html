@@ -355,8 +355,8 @@
             }
 
             products.forEach(p => {
-                // نتحقق إذا كان هناك مقاسات مخزنة في قاعدة البيانات، وإلا نضع نصاً افتراضياً
-                const sizesText = p.sizes || "S, M, L, XL (أو حسب المتاح)";
+                // يعرض المقاسات المدخلة من الأدمن، أو يتركه فارغاً أو حسب المتوفر
+                const sizesDisplay = p.sizes ? p.sizes : 'متوفر لجميع المقاسات';
 
                 grid.innerHTML += `
                     <div class="product-card">
@@ -367,7 +367,7 @@
                             <h3 class="product-title">${p.name}</h3>
                             <div class="product-price">${p.price} ج.س</div>
                             <div class="product-sizes-info">
-                                📐 <strong>المقاسات المتاحة:</strong> ${sizesText}
+                                📐 <strong>المقاسات:</strong> ${sizesDisplay}
                             </div>
                             <button class="btn-order" onclick="openOrderModal('${p.name}', '${p.price}')">طلب العرض عبر واتساب</button>
                         </div>
@@ -381,7 +381,7 @@
                 name: name,
                 price: price
             };
-            document.getElementById('custSize').value = ''; // إعادة تفريغ حقل المقاس
+            document.getElementById('custSize').value = '';
             document.getElementById('orderModal').style.display = 'flex';
         };
 
@@ -428,7 +428,6 @@
         window.onload = () => {
             loadProducts();
             
-            // إخفاء شاشة اللوقو الافتتاحية بعد 2 ثانية
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
                 if (splash) {
@@ -466,7 +465,6 @@
         </div>
     </div>
 
-    <!-- نافذة كتابة بيانات الطلب والمقاس -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <div class="modal-header">تأكيد بيانات الطلب</div>
@@ -499,3 +497,4 @@
 
 </body>
 </html>
+ 
