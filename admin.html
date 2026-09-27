@@ -32,7 +32,6 @@
             font-size: 14px;
         }
 
-        /* زر اختر صورة من المعرض */
         .file-upload-btn {
             display: block;
             width: 100%;
@@ -115,7 +114,6 @@
 
         let compressedImageBase64 = "";
 
-        // دالة ضغط الصورة وتصغير حجمها
         window.handleImageUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -125,7 +123,7 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // أقصى عرض للصورة لضغطها
+                    const MAX_WIDTH = 600;
                     const scaleFactor = MAX_WIDTH / img.width;
                     
                     canvas.width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
@@ -134,7 +132,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                    // ضغط جودة الصورة إلى 60% لتقليل الحجم
                     compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
 
                     const preview = document.getElementById('previewImg');
@@ -205,10 +202,11 @@
             }
         };
 
+        // دالة الحذف الأصلية الصحيحة
         window.deleteProduct = async function(id) {
             if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
                 try {
-                    await deleteDoc(doc(doc(db, "products", id)));
+                    await deleteDoc(doc(db, "products", id));
                     loadAdminProducts();
                 } catch (e) {
                     alert('خطأ في الحذف');
@@ -222,7 +220,7 @@
 <body>
 
     <div class="container">
-        <h1> لوحة إدارة Mohamed Store</h1>
+        <h1>⚙️ لوحة إدارة Mohamed Store</h1>
 
         <div class="card">
             <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">إضافة عرض جديد</h2>
