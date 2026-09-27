@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -51,9 +52,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let base64Image = "";
+        let processedBase64Image = "";
 
-        // ضغط الصورة وتحويلها مباشرة لنص ذكي يدخل قاعدة البيانات
+        // معالجة وضغط الصورة فوراً على الهاتف لتحويلها لرابط مباشر
         window.handleImageSelect = function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -64,18 +65,18 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const maxWidth = 500;
+                        const maxWidth = 400;
                         const scale = maxWidth / img.width;
                         canvas.width = maxWidth;
                         canvas.height = img.height * scale;
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         
-                        base64Image = canvas.toDataURL('image/jpeg', 0.7);
+                        processedBase64Image = canvas.toDataURL('image/jpeg', 0.6);
                         
                         const preview = document.getElementById('imgPreview');
-                        preview.src = base64Image;
+                        preview.src = processedBase64Image;
                         preview.style.display = 'block';
-                        document.getElementById('uploadText').innerText = "تمت معالجة الصورة بنجاح ✅";
+                        document.getElementById('uploadText').innerText = "تمت معالجة الصورة جاهزة للنشر ✅";
                     };
                 };
                 reader.readAsDataURL(file);
@@ -92,21 +93,21 @@
                 return;
             }
 
-            if(!base64Image) {
+            if(!processedBase64Image) {
                 alert('يرجى اختيار صورة للعرض من المعرض أولاً');
                 return;
             }
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerText = "جاري حفظ العرض والصورة...";
+            submitBtn.innerText = "جاري الحفظ بالنظام...";
 
             try {
                 await addDoc(collection(db, "products"), {
                     name: name,
                     price: price,
                     area: area,
-                    img: base64Image,
+                    img: processedBase64Image,
                     sizes: ["S", "M", "L", "XL"],
                     createdAt: serverTimestamp()
                 });
@@ -116,7 +117,7 @@
                 document.getElementById('pImgFile').value = '';
                 document.getElementById('imgPreview').style.display = 'none';
                 document.getElementById('uploadText').innerText = "📷 اضغط هنا لاختيار صورة العرض من المعرض";
-                base64Image = "";
+                processedBase64Image = "";
                 
                 alert('تم نشر العرض بنجاح ورؤية صورته المباشرة!');
                 loadAdminProducts();
@@ -217,4 +218,4 @@
 
 </body>
 </html>
- 
+
