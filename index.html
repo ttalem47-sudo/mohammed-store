@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر محمد ستار | الطلب السريع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px 15px; display: flex; justify-content: center; }
+        .main-container { width: 100%; max-width: 480px; background: var(--card-bg); border-radius: var(--border-radius); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 24px; text-align: center; }
+        
+        .logo-box { margin-bottom: 20px; }
+        .logo-avatar { width: 90px; height: 90px; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; margin: 0 auto 10px; border: 3px solid #e2e8f0; }
+        
+        .welcome-title { font-size: 22px; font-weight: 800; color: var(--primary-color); margin-bottom: 8px; }
+        .welcome-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+        .form-group { text-align: right; margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--primary-color); }
+        select, input { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; transition: all 0.3s ease; background-color: #f8fafc; }
+        select:focus, input:focus { border-color: var(--accent-color); background-color: #fff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        .products-section { margin-top: 25px; text-align: right; }
+        .section-header { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: var(--primary-color); border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+
+        .product-card { border: 1.5px solid #f1f5f9; border-radius: 14px; overflow: hidden; margin-bottom: 20px; background: #fff; }
+        .product-img { width: 100%; height: 220px; object-fit: cover; background-color: #eee; }
+        .product-info { padding: 15px; }
+        .product-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+        .product-price { font-size: 18px; font-weight: 800; color: var(--accent-color); margin-bottom: 12px; }
+
+        .sizes-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+        .sizes-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .size-btn { padding: 8px 16px; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.2s; }
+        .size-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .btn-submit { width: 100%; padding: 16px; background-color: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: background 0.3s; }
+        .btn-submit:hover { background-color: #1d4ed8; }
+
+        .success-card { display: none; padding: 30px 15px; }
+        .success-icon { font-size: 50px; margin-bottom: 15px; }
+        .success-title { font-size: 20px; font-weight: 800; color: #166534; margin-bottom: 10px; }
+        .success-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <div id="orderFormFlow">
+        <!-- اللوجو والترحيب -->
+        <div class="logo-box">
+            <div class="logo-avatar">MS</div>
+        </div>
+        <h1 class="welcome-title">مرحباً بك في محمد ستار! 👋</h1>
+        <p class="welcome-sub">يرجى تحديد منطقتك لمشاهدة أحدث الملابس والعروض المتوفرة لديك.</p>
+
+        <!-- اختيار المنطقة -->
+        <div class="form-group">
+            <label for="userLocation">المنطقة أو المدينة</label>
+            <select id="userLocation" onchange="filterProducts()">
+                <option value="" disabled selected>-- اختر منطقتك --</option>
+                <option value="khartoum">الخرطوم</option>
+                <option value="omdurman">أم درمان</option>
+                <option value="bahri">بحري</option>
+            </select>
+        </div>
+
+        <!-- العروض المتاحة -->
+        <div id="productsSection" class="products-section hidden">
+            <h2 class="section-header">العروض المتاحة في منطقتك</h2>
+
+            <div id="productList">
+                <!-- المنتجات ستظهر هنا تلقائياً -->
+            </div>
+
+            <!-- بيانات المستلم -->
+            <h2 class="section-header" style="margin-top: 30px;">بيانات المستلم</h2>
+            
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="custName" placeholder="أدخل اسمك الثلاثي">
+            </div>
+
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="tel" id="custPhone" placeholder="0912345678">
+            </div>
+
+            <div class="form-group">
+                <label>العنوان بالتفصيل</label>
+                <input type="text" id="custAddress" placeholder="الحي، الشارع، ألمع معلم قريب">
+            </div>
+
+            <button class="btn-submit" onclick="submitOrder()">تأكيد الطلب الآن</button>
+        </div>
+    </div>
+
+    <!-- رسالة التأكيد -->
+    <div id="successCard" class="success-card">
+        <div class="success-icon">🎉</div>
+        <h2 class="success-title">تمت الطلبية بنجاح!</h2>
+        <p class="success-desc">
+            نشكرك على التسوق من <strong>محمد ستار</strong>.<br>
+            <strong>ستصلك الشحنة خلال اليوم أو غداً بأمر الله.</strong><br>
+            سيتواصل معك مندوب التوصيل قريباً.
+        </p>
+    </div>
+
+</div>
+
+<script>
+    // قائمة تجريبية للمنتجات
+    const demoProducts = [
+        { id: 1, name: "طقم كاجوال صيفي فاخر", price: "25,000 ج.س", area: "khartoum", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500", sizes: ["S", "M", "L", "XL"] },
+        { id: 2, name: "قميص قطني أنيق", price: "18,000 ج.س", area: "omdurman", img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500", sizes: ["M", "L", "XL"] },
+        { id: 3, name: "بنطال جينز عصري", price: "22,000 ج.س", area: "bahri", img: "https://images.unsplash.com/photo-1542272604-780c36856842?w=500", sizes: ["S", "M", "L"] }
+    ];
+
+    let selectedSize = "M";
+
+    function filterProducts() {
+        const area = document.getElementById('userLocation').value;
+        const listContainer = document.getElementById('productList');
+        listContainer.innerHTML = "";
+
+        const filtered = demoProducts.filter(p => p.area === area || area === "khartoum"); // الخرطوم تعرض الكل للتجربة
+
+        filtered.forEach(p => {
+            let sizesHTML = p.sizes.map((s, index) => `<button class="size-btn ${index === 0 ? 'active' : ''}" onclick="selectSize(this, '${s}')">${s}</button>`).join('');
+            
+            listContainer.innerHTML += `
+                <div class="product-card">
+                    <img src="${p.img}" alt="${p.name}" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-title">${p.name}</h3>
+                        <div class="product-price">${p.price}</div>
+                        <div class="sizes-title">حدد المقاس المناسب:</div>
+                        <div class="sizes-options">${sizesHTML}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('productsSection').classList.remove('hidden');
+    }
+
+    function selectSize(btn, size) {
+        let siblings = btn.parentElement.querySelectorAll('.size-btn');
+        siblings.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedSize = size;
+    }
+
+    function submitOrder() {
+        const name = document.getElementById('custName').value;
+        const phone = document.getElementById('custPhone').value;
+        const address = document.getElementById('custAddress').value;
+
+        if(!name || !phone || !address) {
+            alert('يرجى ملء جميع بيانات التوصيل للإتمام!');
+            return;
+        }
+
+        document.getElementById('orderFormFlow').style.display = 'none';
+        document.getElementById('successCard').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
