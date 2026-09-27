@@ -7,42 +7,169 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        body { background-color: #f1f5f9; padding: 20px; color: #1e293b; }
+        body { background-color: #0f172a; padding: 20px; color: #f8fafc; }
         .container { max-width: 800px; margin: 0 auto; }
-        
-        .header { background: #0f172a; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: #0f172a; }
-        
+        .header { background: #1e293b; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .card { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
+        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; color: #38bdf8; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: span 2; }
-        
-        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
-        
-        .checkbox-group { display: flex; gap: 12px; margin-top: 5px; }
-        
-        .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; }
+        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: #cbd5e1; }
+        input, select { width: 100%; padding: 10px; border: 1.5px solid #475569; border-radius: 8px; font-size: 14px; background: #0f172a; color: #fff; }
+        .file-upload-box { border: 2px dashed #475569; padding: 15px; text-align: center; border-radius: 8px; background: #0f172a; cursor: pointer; color: #94a3b8; }
+        .file-upload-box input { display: none; }
+        .preview-img { max-width: 100px; max-height: 100px; border-radius: 8px; margin-top: 10px; display: none; object-fit: cover; }
+        .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; }
         .btn-add:hover { background: #1d4ed8; }
-
-        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #334155; }
         .item-info { display: flex; align-items: center; gap: 12px; }
         .item-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
     </style>
+
+    <!-- Firebase SDK Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
+            authDomain: "mohammed-store-59677.firebaseapp.com",
+            projectId: "mohammed-store-59677",
+            storageBucket: "mohammed-store-59677.firebasestorage.app",
+            messagingSenderId: "276394997556",
+            appId: "1:276394997556:web:f7e495d9d02131f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let uploadedImageUrl = "";
+
+        window.handleImageSelect = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imgPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    uploadedImageUrl = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.addNewProduct = async function() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const area = document.getElementById('pArea').value;
+            const fileInput = document.getElementById('pImgFile');
+
+            if(!name || !price) {
+                alert('يرجى ملء بيانات اسم المنتج والسعر');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "جاري رفع العرض وحفظه...";
+
+            let finalImgUrl = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500";
+
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append("image", fileInput.files[0]);
+                try {
+                    const response = await fetch("https://api.imgbb.com/1/upload?key=6d207e02198a847aa98d0a2a901485a5", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if(data.success) {
+                        finalImgUrl = data.data.url;
+                    }
+                } catch (error) {
+                    console.log("خطأ في رفع الصورة", error);
+                }
+            }
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    name: name,
+                    price: price,
+                    area: area,
+                    img: finalImgUrl,
+                    sizes: ["S", "M", "L", "XL"],
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('pName').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pImgFile').value = '';
+                document.getElementById('imgPreview').style.display = 'none';
+                uploadedImageUrl = "";
+                
+                alert('تم نشر العرض بنجاح في الموقع');
+                loadAdminProducts();
+            } catch (e) {
+                alert('حدث خطأ أثناء الحفظ: ' + e.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "نشر العرض في الموقع";
+            }
+        };
+
+        window.loadAdminProducts = async function() {
+            const list = document.getElementById('adminProductList');
+            list.innerHTML = "جاري تحميل العروض...";
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                list.innerHTML = "";
+                if(querySnapshot.empty) {
+                    list.innerHTML = "لا توجد عروض حالياً";
+                    return;
+                }
+                querySnapshot.forEach((docSnap) => {
+                    const item = docSnap.data();
+                    list.innerHTML += `
+                        <div class="item-row">
+                            <div class="item-info">
+                                <img src="${item.img}" alt="صورة">
+                                <div>
+                                    <strong>${item.name}</strong><br>
+                                    <small style="color: #94a3b8;">المنطقة: ${item.area} | السعر: ${item.price}</small>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف العرض</button>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                list.innerHTML = "خطأ في تحميل العروض: " + e.message;
+            }
+        };
+
+        window.deleteProduct = async function(id) {
+            if(confirm('هل أنت تأكد من حذف هذا العرض؟')) {
+                await deleteDoc(doc(db, "products", id));
+                loadAdminProducts();
+            }
+        };
+
+        window.onload = loadAdminProducts;
+    </script>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>⚙️ لوحة إدارة متجر محمد ستار</h1>
-        <span>أهلاً بك يا مدير!</span>
+        <h1>لوحة إدارة متجر محمد ستار</h1>
+        <span>الاتصال المباشر مفعل</span>
     </div>
 
-    <!-- إضافة عرض جديد -->
     <div class="card">
-        <h2>إضافة عرض ملابس جديد</h2>
+        <h2>إضافة عرض جديد</h2>
         <div class="form-grid">
             <div>
                 <label>اسم القطعة / العرض</label>
@@ -55,84 +182,30 @@
             <div>
                 <label>تحديد المنطقة المخصصة</label>
                 <select id="pArea">
-                    <option value="الخرطوم">الخرطوم</option>
-                    <option value="أم درمان">أم درمان</option>
-                    <option value="بحري">بحري</option>
+                    <option value="khartoum">الخرطوم</option>
+                    <option value="omdurman">أم درمان</option>
+                    <option value="bahri">بحري</option>
                 </select>
             </div>
             <div>
-                <label>رابط صورة المنتج (URL)</label>
-                <input type="text" id="pImg" placeholder="https://...">
-            </div>
-            <div class="full-width">
-                <label>المقاسات المتوفرة</label>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" checked> S</label>
-                    <label><input type="checkbox" checked> M</label>
-                    <label><input type="checkbox" checked> L</label>
-                    <label><input type="checkbox" checked> XL</label>
+                <label>صورة المنتج (رفع مباشر)</label>
+                <div class="file-upload-box" onclick="document.getElementById('pImgFile').click()">
+                    <span>اضغط هنا لاختيار صورة من جهازك</span>
+                    <input type="file" id="pImgFile" accept="image/*" onchange="handleImageSelect(event)">
                 </div>
+                <center><img id="imgPreview" class="preview-img" src="" alt="معاينة"></center>
             </div>
         </div>
-        <button class="btn-add" onclick="addNewProduct()">نشر العرض في الموقع</button>
+        <button class="btn-add" id="submitBtn" onclick="addNewProduct()">نشر العرض في الموقع</button>
     </div>
 
-    <!-- العروض النشطة -->
     <div class="card">
         <h2>العروض النشطة حالياً</h2>
         <div id="adminProductList">
-            <div class="item-row">
-                <div class="item-info">
-                    <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100" alt="صورة">
-                    <div>
-                        <strong>طقم كاجوال صيفي فاخر</strong><br>
-                        <small style="color: #64748b;">المنطقة: الخرطوم | السعر: 25,000 ج.س</small>
-                    </div>
-                </div>
-                <button class="btn-delete" onclick="deleteItem(this)">حذف العرض</button>
-            </div>
+            جاري تحميل العروض...
         </div>
     </div>
 </div>
-
-<script>
-    function addNewProduct() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const area = document.getElementById('pArea').value;
-        let img = document.getElementById('pImg').value;
-
-        if(!name || !price) {
-            alert('يرجى ملء بيانات اسم المنتج والسعر!');
-            return;
-        }
-
-        if(!img) img = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100";
-
-        const list = document.getElementById('adminProductList');
-        list.innerHTML += `
-            <div class="item-row">
-                <div class="item-info">
-                    <img src="${img}" alt="صورة">
-                    <div>
-                        <strong>${name}</strong><br>
-                        <small style="color: #64748b;">المنطقة: ${area} | السعر: ${price} ج.س</small>
-                    </div>
-                </div>
-                <button class="btn-delete" onclick="deleteItem(this)">حذف العرض</button>
-            </div>
-        `;
-
-        document.getElementById('pName').value = '';
-        document.getElementById('pPrice').value = '';
-        document.getElementById('pImg').value = '';
-        alert('تم إضافة العرض بنجاح!');
-    }
-
-    function deleteItem(btn) {
-        btn.parentElement.remove();
-    }
-</script>
 
 </body>
 </html>
