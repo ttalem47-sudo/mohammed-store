@@ -13,12 +13,25 @@
         .card { background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px solid #334155; }
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; color: #38bdf8; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full-width { grid-column: span 2; }
         label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: #cbd5e1; }
         input, select { width: 100%; padding: 10px; border: 1.5px solid #475569; border-radius: 8px; font-size: 14px; background: #0f172a; color: #fff; }
-        .file-upload-box { border: 2px dashed #475569; padding: 15px; text-align: center; border-radius: 8px; background: #0f172a; cursor: pointer; color: #94a3b8; }
+        
+        /* خيار اختيار الصورة من المعرض */
+        .file-upload-box { 
+            border: 2px dashed #38bdf8; 
+            padding: 20px; 
+            text-align: center; 
+            border-radius: 8px; 
+            background: rgba(56, 189, 248, 0.05); 
+            cursor: pointer; 
+            color: #38bdf8; 
+            font-weight: 700;
+            transition: background 0.3s;
+        }
+        .file-upload-box:hover { background: rgba(56, 189, 248, 0.15); }
         .file-upload-box input { display: none; }
-        .preview-img { max-width: 100px; max-height: 100px; border-radius: 8px; margin-top: 10px; display: none; object-fit: cover; }
+        .preview-img { max-width: 120px; max-height: 120px; border-radius: 8px; margin-top: 10px; display: none; object-fit: cover; border: 2px solid #38bdf8; }
+        
         .btn-add { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; }
         .btn-add:hover { background: #1d4ed8; }
         .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #334155; }
@@ -27,7 +40,7 @@
         .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
     </style>
 
-    <!-- Firebase SDK Modules -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -44,8 +57,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let uploadedImageUrl = "";
-
         window.handleImageSelect = function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -54,7 +65,7 @@
                     const preview = document.getElementById('imgPreview');
                     preview.src = e.target.result;
                     preview.style.display = 'block';
-                    uploadedImageUrl = e.target.result;
+                    document.getElementById('uploadText').innerText = "تم اختيار الصورة: " + file.name;
                 }
                 reader.readAsDataURL(file);
             }
@@ -73,7 +84,7 @@
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerText = "جاري رفع العرض وحفظه...";
+            submitBtn.innerText = "جاري رفع الصورة ونشر العرض...";
 
             let finalImgUrl = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500";
 
@@ -108,7 +119,7 @@
                 document.getElementById('pPrice').value = '';
                 document.getElementById('pImgFile').value = '';
                 document.getElementById('imgPreview').style.display = 'none';
-                uploadedImageUrl = "";
+                document.getElementById('uploadText').innerText = "📷 اضغط هنا لاختيار صورة العرض من المعرض";
                 
                 alert('تم نشر العرض بنجاح في الموقع');
                 loadAdminProducts();
@@ -188,9 +199,9 @@
                 </select>
             </div>
             <div>
-                <label>صورة المنتج (رفع مباشر)</label>
+                <label>صورة العرض من المعرض</label>
                 <div class="file-upload-box" onclick="document.getElementById('pImgFile').click()">
-                    <span>اضغط هنا لاختيار صورة من جهازك</span>
+                    <span id="uploadText">📷 اضغط هنا لاختيار صورة العرض من المعرض</span>
                     <input type="file" id="pImgFile" accept="image/*" onchange="handleImageSelect(event)">
                 </div>
                 <center><img id="imgPreview" class="preview-img" src="" alt="معاينة"></center>
