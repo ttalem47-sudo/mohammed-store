@@ -32,6 +32,31 @@
             font-size: 14px;
         }
 
+        /* زر اختر صورة من المعرض */
+        .file-upload-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-btn:hover { background: #2563eb; }
+
+        .img-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
         .btn-add {
             width: 100%;
             padding: 12px;
@@ -43,6 +68,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: 0.3s;
+            margin-top: 10px;
         }
         .btn-add:hover { background: #15803d; }
 
@@ -87,6 +113,39 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let compressedImageBase64 = "";
+
+        // دالة ضغط الصورة وتصغير حجمها
+        window.handleImageUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; // أقصى عرض للصورة لضغطها
+                    const scaleFactor = MAX_WIDTH / img.width;
+                    
+                    canvas.width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
+                    canvas.height = (img.width > MAX_WIDTH) ? img.height * scaleFactor : img.height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // ضغط جودة الصورة إلى 60% لتقليل الحجم
+                    compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+                    const preview = document.getElementById('previewImg');
+                    preview.src = compressedImageBase64;
+                    preview.style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
         async function loadAdminProducts() {
             const list = document.getElementById('adminProductsList');
             list.innerHTML = "جاري التحميل...";
@@ -117,12 +176,11 @@
         window.addProduct = async function() {
             const name = document.getElementById('pName').value.trim();
             const price = document.getElementById('pPrice').value.trim();
-            const img = document.getElementById('pImg').value.trim();
             const area = document.getElementById('pArea').value;
             const sizes = document.getElementById('pSizes').value.trim();
 
-            if (!name || !price || !img) {
-                alert('يرجى ملء اسم المنتج، السعر، ورابط الصورة');
+            if (!name || !price || !compressedImageBase64) {
+                alert('يرجى اختيار صورة واختيار اسم وسعر للمنتج.');
                 return;
             }
 
@@ -130,25 +188,27 @@
                 await addDoc(collection(db, "products"), {
                     name: name,
                     price: price,
-                    img: img,
+                    img: compressedImageBase64,
                     area: area,
                     sizes: sizes || "حسب المتاح"
                 });
-                alert('تم إضافه المنتج بنجاح!');
+                alert('تم إضافة المنتج بنجاح!');
                 document.getElementById('pName').value = '';
                 document.getElementById('pPrice').value = '';
-                document.getElementById('pImg').value = '';
                 document.getElementById('pSizes').value = '';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('previewImg').style.display = 'none';
+                compressedImageBase64 = "";
                 loadAdminProducts();
             } catch (e) {
-                alert('حدث خطأ أثناء الإضافة');
+                alert('حدث خطأ أثناء الإضافة، تأكد من حجم الصورة.');
             }
         };
 
         window.deleteProduct = async function(id) {
             if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
                 try {
-                    await deleteDoc(doc(db, "products", id));
+                    await deleteDoc(doc(doc(db, "products", id)));
                     loadAdminProducts();
                 } catch (e) {
                     alert('خطأ في الحذف');
@@ -162,7 +222,7 @@
 <body>
 
     <div class="container">
-        <h1>⚙️ لوحة إدارة Mohamed Store</h1>
+        <h1> لوحة إدارة Mohamed Store</h1>
 
         <div class="card">
             <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">إضافة عرض جديد</h2>
@@ -187,13 +247,15 @@
             </div>
 
             <div class="form-group">
-                <label>المقاسات المتوفرة (أكتبها كما تحب)</label>
-                <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو 40, 41, 42 أو اكتب المقاسات المتاحة">
+                <label>المقاسات المتوفرة</label>
+                <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو 40, 41, 42">
             </div>
 
             <div class="form-group">
-                <label>رابط الصورة (URL)</label>
-                <input type="text" id="pImg" placeholder="https://...">
+                <label>صورة المنتج</label>
+                <label for="fileInput" class="file-upload-btn">📷 اختيار صورة من المعرض</label>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <img id="previewImg" class="img-preview" alt="معاينة الصورة">
             </div>
 
             <button class="btn-add" onclick="addProduct()">إضافة العرض الآن</button>
@@ -207,4 +269,3 @@
 
 </body>
 </html>
- 
