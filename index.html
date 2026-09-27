@@ -168,30 +168,17 @@
             font-size: 18px;
             font-weight: 800;
             color: #fbbf24;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        .sizes-box {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 15px;
-        }
-
-        .size-btn {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .product-sizes-info {
+            font-size: 13px;
             color: #cbd5e1;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .size-btn.selected {
-            background: #fbbf24;
-            color: #0f172a;
-            border-color: #fbbf24;
-            font-weight: bold;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-order {
@@ -313,7 +300,6 @@
         const db = getFirestore(app);
 
         let allProducts = [];
-        let selectedSizes = {};
         let currentOrder = {};
 
         async function loadProducts() {
@@ -369,6 +355,9 @@
             }
 
             products.forEach(p => {
+                // نتحقق إذا كان هناك مقاسات مخزنة في قاعدة البيانات، وإلا نضع نصاً افتراضياً
+                const sizesText = p.sizes || "S, M, L, XL (أو حسب المتاح)";
+
                 grid.innerHTML += `
                     <div class="product-card">
                         <div class="img-wrapper" onclick="openPreview('${p.img}')">
@@ -377,32 +366,22 @@
                         <div class="product-details">
                             <h3 class="product-title">${p.name}</h3>
                             <div class="product-price">${p.price} ج.س</div>
-                            <div class="sizes-box">
-                                <button class="size-btn" onclick="selectSize('${p.id}', 'S', this)">S</button>
-                                <button class="size-btn" onclick="selectSize('${p.id}', 'M', this)">M</button>
-                                <button class="size-btn" onclick="selectSize('${p.id}', 'L', this)">L</button>
-                                <button class="size-btn" onclick="selectSize('${p.id}', 'XL', this)">XL</button>
+                            <div class="product-sizes-info">
+                                📐 <strong>المقاسات المتاحة:</strong> ${sizesText}
                             </div>
-                            <button class="btn-order" onclick="openOrderModal('${p.name}', '${p.price}', '${p.id}')">طلب العرض عبر واتساب</button>
+                            <button class="btn-order" onclick="openOrderModal('${p.name}', '${p.price}')">طلب العرض عبر واتساب</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        window.selectSize = function(productId, size, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedSizes[productId] = size;
-        };
-
-        window.openOrderModal = function(name, price, id) {
+        window.openOrderModal = function(name, price) {
             currentOrder = {
                 name: name,
-                price: price,
-                size: selectedSizes[id] || 'M (افتراضي)'
+                price: price
             };
+            document.getElementById('custSize').value = ''; // إعادة تفريغ حقل المقاس
             document.getElementById('orderModal').style.display = 'flex';
         };
 
@@ -414,6 +393,7 @@
             const customerName = document.getElementById('custName').value.trim();
             const customerPhone = document.getElementById('custPhone').value.trim();
             const customerAddress = document.getElementById('custAddress').value.trim();
+            const customerSize = document.getElementById('custSize').value.trim() || 'غير محدد';
 
             if (!customerName || !customerPhone || !customerAddress) {
                 alert('يرجى كتابة الاسم، رقم الهاتف، والمنطقة/العنوان الدقيق لإتمام الطلب.');
@@ -425,7 +405,7 @@
             const text = `طلب جديد - Mohamed Store%0A` +
                          `----------------------------%0A` +
                          `المنتج: ${currentOrder.name}%0A` +
-                         `المقاس: ${currentOrder.size}%0A` +
+                         `المقاس المطلوب: ${customerSize}%0A` +
                          `السعر: ${currentOrder.price} ج.س%0A` +
                          `----------------------------%0A` +
                          `اسم الزبون: ${customerName}%0A` +
@@ -460,7 +440,7 @@
 </head>
 <body>
 
-    <!-- شاشة اللوقو الافتتاحية عند الفتح -->
+    <!-- شاشة اللوقو الافتتاحية -->
     <div id="splashScreen">
         <img src="IMG-20260925-WA0048.jpg" alt="Mohamed Store Logo" class="splash-logo" onerror="this.parentElement.style.display='none';">
     </div>
@@ -486,6 +466,7 @@
         </div>
     </div>
 
+    <!-- نافذة كتابة بيانات الطلب والمقاس -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <div class="modal-header">تأكيد بيانات الطلب</div>
@@ -496,6 +477,10 @@
             <div class="form-group">
                 <label>رقم هاتفك للتواصل</label>
                 <input type="tel" id="custPhone" placeholder="مثال: 0912345678">
+            </div>
+            <div class="form-group">
+                <label>المقاس المطلوب (اختياري)</label>
+                <input type="text" id="custSize" placeholder="مثال: L أو 42 أو اكتب المقاس">
             </div>
             <div class="form-group">
                 <label>المنطقة والعنوان الدقيق</label>
