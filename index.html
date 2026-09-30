@@ -197,7 +197,7 @@
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(10px);
             display: none;
             justify-content: center;
@@ -212,7 +212,7 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             max-height: 90vh;
             overflow-y: auto;
             padding: 20px;
@@ -229,11 +229,19 @@
         }
 
         .selected-item-row {
-            background: rgba(30, 41, 59, 0.7);
-            padding: 10px;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .unit-box {
+            background: rgba(15, 23, 42, 0.7);
+            padding: 8px 10px;
             border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 8px;
+            border-right: 3px solid #38bdf8;
         }
 
         .form-group { margin-bottom: 12px; }
@@ -281,6 +289,37 @@
             cursor: pointer;
             font-size: 13px;
         }
+
+        .qty-picker-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .qty-btn {
+            width: 45px;
+            height: 45px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-val {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fbbf24;
+            min-width: 40px;
+            text-align: center;
+        }
     </style>
 
     <script type="module">
@@ -302,16 +341,16 @@
         let allProducts = [];
         let deliveryOptions = [];
         let cart = [];
+        let pendingProductId = null;
+        let selectedQty = 1;
 
         async function loadData() {
             const grid = document.getElementById('productsGrid');
             try {
-                // تحميل خيارات التوصيل
                 const delSnap = await getDocs(collection(db, "delivery_options"));
                 deliveryOptions = [];
                 delSnap.forEach(doc => deliveryOptions.push({ id: doc.id, ...doc.data() }));
 
-                // تحميل المنتجات
                 const querySnapshot = await getDocs(collection(db, "products"));
                 allProducts = [];
                 querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
@@ -360,11 +399,13 @@
             }
 
             products.forEach(p => {
-                const isInCart = cart.some(item => item.id === p.id);
+                const cartItem = cart.find(item => item.id === p.id);
+                const isInCart = !!cartItem;
+                const qtyText = isInCart ? ` (العدد: ${cartItem.quantity})` : '';
+
                 const sizesDisplay = p.sizes ? p.sizes : 'حسب المتاح';
                 const colorsDisplay = p.colors ? p.colors : 'جميع الألوان متوفرة';
 
-                // تجهيز الخانات المخصصة
                 let customFieldsHtml = '';
                 if (p.customFields && p.customFields.length > 0) {
                     p.customFields.forEach(cf => {
@@ -387,8 +428,8 @@
                                 🎨 <strong>الألوان:</strong> ${colorsDisplay}
                             </div>
                             ${customFieldsHtml}
-                            <button class="btn-add-cart ${isInCart ? 'added' : ''}" id="btn-${p.id}" onclick="toggleCart('${p.id}')">
-                                ${isInCart ? '✓ تم الاختيار' : '🛒 إضافة للطلب'}
+                            <button class="btn-add-cart ${isInCart ? 'added' : ''}" id="btn-${p.id}" onclick="handleCartClick('${p.id}')">
+                                ${isInCart ? '✓ تم الاختيار' + qtyText : '🛒 إضافة للطلب'}
                             </button>
                         </div>
                     </div>
@@ -396,45 +437,66 @@
             });
         }
 
-        window.toggleCart = function(productId) {
-            const product = allProducts.find(p => p.id === productId);
+        window.handleCartClick = function(productId) {
             const index = cart.findIndex(item => item.id === productId);
-
             if (index > -1) {
                 cart.splice(index, 1);
+                updateCartUI();
             } else {
-                cart.push({ ...product, userSize: '', userColor: '', userCustomAnswers: {} });
+                pendingProductId = productId;
+                selectedQty = 1;
+                document.getElementById('modalQtyVal').innerText = selectedQty;
+                const p = allProducts.find(x => x.id === productId);
+                document.getElementById('qtyModalTitle').innerText = `حدد العدد المطلوب من (${p.name})`;
+                document.getElementById('qtyModal').style.display = 'flex';
             }
+        };
 
+        window.changeQty = function(delta) {
+            selectedQty += delta;
+            if (selectedQty < 1) selectedQty = 1;
+            if (selectedQty > 20) selectedQty = 20;
+            document.getElementById('modalQtyVal').innerText = selectedQty;
+        };
+
+        window.confirmQuantity = function() {
+            const product = allProducts.find(p => p.id === pendingProductId);
+            if (product) {
+                const itemsDetails = [];
+                for (let i = 0; i < selectedQty; i++) {
+                    itemsDetails.push({
+                        size: '',
+                        color: '',
+                        customAnswers: {}
+                    });
+                }
+
+                cart.push({
+                    ...product,
+                    quantity: selectedQty,
+                    units: itemsDetails
+                });
+            }
+            document.getElementById('qtyModal').style.display = 'none';
             updateCartUI();
         };
 
-        function updateCartUI() {
-            allProducts.forEach(p => {
-                const card = document.getElementById(`card-${p.id}`);
-                const btn = document.getElementById(`btn-${p.id}`);
-                const isInCart = cart.some(item => item.id === p.id);
+        window.closeQtyModal = function() {
+            document.getElementById('qtyModal').style.display = 'none';
+        };
 
-                if (card && btn) {
-                    if (isInCart) {
-                        card.classList.add('selected');
-                        btn.classList.add('added');
-                        btn.innerHTML = '✓ تم الاختيار';
-                    } else {
-                        card.classList.remove('selected');
-                        btn.classList.remove('added');
-                        btn.innerHTML = '🛒 إضافة للطلب';
-                    }
-                }
-            });
+        function updateCartUI() {
+            renderProducts(allProducts);
 
             const cartBar = document.getElementById('cartBar');
             const cartCount = document.getElementById('cartCount');
             const cartTotal = document.getElementById('cartTotal');
 
             if (cart.length > 0) {
-                const totalAmount = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
-                cartCount.innerText = `عدد العروض المختارة: ${cart.length}`;
+                const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+                const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price || 0) * item.quantity), 0);
+
+                cartCount.innerText = `عدد القطع المختارة: ${totalItemsCount}`;
                 cartTotal.innerText = `${totalAmount} ج.س`;
                 cartBar.classList.add('active');
             } else {
@@ -447,46 +509,61 @@
             container.innerHTML = '';
 
             cart.forEach((item, idx) => {
-                let customAnswersHtml = '';
-                if (item.customFields && item.customFields.length > 0) {
-                    item.customFields.forEach(cf => {
-                        customAnswersHtml += `
-                            <div style="margin-top: 5px;">
-                                <label style="font-size:11px; color:#cbd5e1;">${cf.name}:</label>
-                                <input type="text" placeholder="${cf.value}" 
-                                       onchange="updateCustomAnswer('${item.id}', '${cf.name}', this.value)" 
-                                       style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                let unitsHtml = '';
+
+                item.units.forEach((unit, uIdx) => {
+                    let customAnswersHtml = '';
+                    if (item.customFields && item.customFields.length > 0) {
+                        item.customFields.forEach(cf => {
+                            customAnswersHtml += `
+                                <div style="margin-top: 4px;">
+                                    <label style="font-size:11px; color:#cbd5e1;">${cf.name}:</label>
+                                    <input type="text" placeholder="${cf.value}" 
+                                           value="${unit.customAnswers[cf.name] || ''}"
+                                           onchange="updateUnitCustom('${item.id}', ${uIdx}, '${cf.name}', this.value)" 
+                                           style="width:100%; padding:4px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;">
+                                </div>
+                            `;
+                        });
+                    }
+
+                    unitsHtml += `
+                        <div class="unit-box">
+                            <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 4px;">
+                                🏷️ القطعة رقم (${uIdx + 1}):
                             </div>
-                        `;
-                    });
-                }
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                <div>
+                                    <input type="text" placeholder="المقاس (مثال: M أو 42)" 
+                                           value="${unit.size || ''}"
+                                           onchange="updateUnitSize('${item.id}', ${uIdx}, this.value)" 
+                                           style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;">
+                                </div>
+                                <div>
+                                    <input type="text" placeholder="اللون المطلوب (مثال: أسود)" 
+                                           value="${unit.color || ''}"
+                                           onchange="updateUnitColor('${item.id}', ${uIdx}, this.value)" 
+                                           style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;">
+                                </div>
+                            </div>
+                            ${customAnswersHtml}
+                        </div>
+                    `;
+                });
 
                 container.innerHTML += `
                     <div class="selected-item-row">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24; font-size:14px;">
-                            <span>${idx + 1}. ${item.name}</span>
-                            <span>${item.price} ج.س</span>
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24; font-size:14px; margin-bottom: 6px;">
+                            <span>${idx + 1}. ${item.name} (عدد: ${item.quantity})</span>
+                            <span>${Number(item.price) * item.quantity} ج.س</span>
                         </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
-                            <div>
-                                <input type="text" placeholder="المقاس (مثال: M أو 42)" 
-                                       onchange="updateItemSize('${item.id}', this.value)" 
-                                       style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
-                            </div>
-                            <div>
-                                <input type="text" placeholder="اللون المطلوب (مثال: أسود)" 
-                                       onchange="updateItemColor('${item.id}', this.value)" 
-                                       style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
-                            </div>
-                        </div>
-                        ${customAnswersHtml}
+                        ${unitsHtml}
                     </div>
                 `;
             });
 
-            // تجهيز خيارات التوصيل
             const deliverySelect = document.getElementById('custDelivery');
-            deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضل...</option>`;
+            deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضلة...</option>`;
             deliveryOptions.forEach(opt => {
                 deliverySelect.innerHTML += `<option value="${opt.price}" data-name="${opt.name}">${opt.name} - (${opt.price} ج.س)</option>`;
             });
@@ -494,21 +571,25 @@
             document.getElementById('checkoutModal').style.display = 'flex';
         };
 
-        window.updateItemSize = function(id, value) {
-            const item = cart.find(i => i.id === id);
-            if (item) item.userSize = value.trim() || 'حسب المتاح';
+        window.updateUnitSize = function(itemId, unitIdx, val) {
+            const item = cart.find(i => i.id === itemId);
+            if (item && item.units[unitIdx]) {
+                item.units[unitIdx].size = val.trim();
+            }
         };
 
-        window.updateItemColor = function(id, value) {
-            const item = cart.find(i => i.id === id);
-            if (item) item.userColor = value.trim() || 'حسب المتاح';
+        window.updateUnitColor = function(itemId, unitIdx, val) {
+            const item = cart.find(i => i.id === itemId);
+            if (item && item.units[unitIdx]) {
+                item.units[unitIdx].color = val.trim();
+            }
         };
 
-        window.updateCustomAnswer = function(id, fieldName, value) {
-            const item = cart.find(i => i.id === id);
-            if (item) {
-                if (!item.userCustomAnswers) item.userCustomAnswers = {};
-                item.userCustomAnswers[fieldName] = value.trim();
+        window.updateUnitCustom = function(itemId, unitIdx, fieldName, val) {
+            const item = cart.find(i => i.id === itemId);
+            if (item && item.units[unitIdx]) {
+                if (!item.units[unitIdx].customAnswers) item.units[unitIdx].customAnswers = {};
+                item.units[unitIdx].customAnswers[fieldName] = val.trim();
             }
         };
 
@@ -532,19 +613,23 @@
                 return;
             }
 
-            const itemsTotal = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const itemsTotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * item.quantity), 0);
             const totalAmount = itemsTotal + deliveryCost;
 
-            const finalCartItems = cart.map(i => ({ 
-                name: i.name, 
-                price: i.price, 
-                size: i.userSize || 'غير محدد',
-                color: i.userColor || 'غير محدد',
-                customAnswers: i.userCustomAnswers || {},
-                img: i.img || '' 
-            }));
+            const finalCartItems = [];
+            cart.forEach(item => {
+                item.units.forEach((unit, uIdx) => {
+                    finalCartItems.push({
+                        name: `${item.name} (قطعة ${uIdx + 1} من ${item.quantity})`,
+                        price: item.price,
+                        size: unit.size || 'حسب المتاح',
+                        color: unit.color || 'حسب المتاح',
+                        customAnswers: unit.customAnswers || {},
+                        img: item.img || ''
+                    });
+                });
+            });
 
-            // حفظ الطلب في Firestore
             try {
                 await addDoc(collection(db, "orders"), {
                     customerName,
@@ -560,30 +645,31 @@
                     date: new Date().toLocaleString('ar-EG')
                 });
             } catch(e) {
-                console.log("حدث خطأ أثناء حفظ الطلب في قاعدة البيانات", e);
+                console.log("خطأ في حفظ الطلب", e);
             }
 
-            // إرسال عبر الواتساب
             const myWhatsAppNumber = "249901358927";
             let itemsText = "";
-            cart.forEach((item, index) => {
-                const sizeStr = item.userSize ? item.userSize : 'غير محدد';
-                const colorStr = item.userColor ? item.userColor : 'غير محدد';
-                
-                let customStr = "";
-                if (item.userCustomAnswers) {
-                    for (const [k, v] of Object.entries(item.userCustomAnswers)) {
-                        customStr += `   - ${k}: ${v}%0A`;
-                    }
-                }
 
-                itemsText += `${index + 1}. ${item.name}%0A   - المقاس: ${sizeStr}%0A   - اللون: ${colorStr}%0A${customStr}   - السعر: ${item.price} ج.س%0A`;
+            cart.forEach((item, index) => {
+                itemsText += `*${index + 1}. ${item.name}* (العدد الإجمالي: ${item.quantity})%0A`;
+                item.units.forEach((unit, uIdx) => {
+                    const sizeStr = unit.size ? unit.size : 'حسب المتاح';
+                    const colorStr = unit.color ? unit.color : 'حسب المتاح';
+                    let customStr = "";
+                    if (unit.customAnswers) {
+                        for (const [k, v] of Object.entries(unit.customAnswers)) {
+                            customStr += `     - ${k}: ${v}%0A`;
+                        }
+                    }
+                    itemsText += `  ← القطعة (${uIdx + 1}): المقاس: [${sizeStr}] | اللون: [${colorStr}]%0A${customStr}`;
+                });
+                itemsText += `   الإجمالي للـ ${item.quantity} قطع: ${Number(item.price) * item.quantity} ج.س%0A------------------------%0A`;
             });
 
             let text = `طلب جديد - Mohamed Store%0A` +
                        `========================%0A` +
-                       `المنتجات المطلوبة:%0A${itemsText}` +
-                       `------------------------%0A` +
+                       `المنتجات والخيارات المطلوبة:%0A${itemsText}` +
                        `خدمة التوصيل: ${deliveryName} (${deliveryCost} ج.س)%0A` +
                        `المبلغ الإجمالي الكلي: ${totalAmount} ج.س%0A` +
                        `========================%0A` +
@@ -650,12 +736,30 @@
         <button class="btn-checkout" onclick="openCheckoutModal()">إتمام الطلب الآن 🛍️</button>
     </div>
 
+    <!-- نافذة تحديد العدد المطلوب -->
+    <div class="modal" id="qtyModal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="modal-header" id="qtyModalTitle">حدد العدد المطلوب</div>
+            <p style="color: #cbd5e1; font-size: 13px; margin-bottom: 10px;">كم قطعة تريد طلبها من هذا العرض؟</p>
+            
+            <div class="qty-picker-container">
+                <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                <span class="qty-val" id="modalQtyVal">1</span>
+                <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+
+            <button class="btn-confirm" onclick="confirmQuantity()">متابعة واختيار (الألوان والمقاسات)</button>
+            <button class="btn-close" onclick="closeQtyModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- نافذة إتمام الطلب والبيانات -->
     <div class="modal" id="checkoutModal">
         <div class="modal-content">
-            <div class="modal-header">تأكيد المشتريات والبيانات</div>
+            <div class="modal-header">تحديد الألوان والمقاسات وإتمام الطلب</div>
             
             <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold; color: #cbd5e1; font-size: 13px; display: block; margin-bottom: 8px;">العروض المختارة والتفاصيل:</label>
+                <label style="font-weight: bold; color: #cbd5e1; font-size: 13px; display: block; margin-bottom: 8px;">تحديد اللون والمقاس لكل قطعة:</label>
                 <div id="selectedProductsList"></div>
             </div>
 
@@ -689,6 +793,7 @@
         </div>
     </div>
 
+    <!-- نافذة معاينة الصورة -->
     <div class="modal" id="previewModal" onclick="closePreview()">
         <div class="modal-content" style="background: transparent; border: none; text-align: center;">
             <img id="previewModalImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
@@ -697,3 +802,4 @@
 
 </body>
 </html>
+ 
