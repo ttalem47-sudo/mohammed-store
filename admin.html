@@ -294,22 +294,20 @@
             }
         };
 
-        // إدارة خيارات التوصيل (مع حفظ المنطقة الخاصة بكل خيار)
+        // إدارة خيارات التوصيل
         window.addDeliveryOption = async function() {
             const name = document.getElementById('delName').value.trim();
             const price = document.getElementById('delPrice').value.trim();
-            const area = document.getElementById('delArea').value;
 
             if (!name) {
-                alert('يرجى إدخال اسم خيار التوصيل (مثال: توصيل داخل الحي)');
+                alert('يرجى إدخال اسم خيار التوصيل (مثال: توصيل داخل عطبرة)');
                 return;
             }
 
             try {
                 await addDoc(collection(db, "delivery_options"), {
                     name,
-                    price: Number(price) || 0,
-                    area
+                    price: Number(price) || 0
                 });
                 document.getElementById('delName').value = '';
                 document.getElementById('delPrice').value = '';
@@ -332,7 +330,6 @@
                             <div>
                                 <strong>🚚 ${d.name}</strong> 
                                 <span style="color:#fbbf24; font-size:13px; margin-right:10px;">(${d.price} ج.س)</span>
-                                <span style="color:#38bdf8; font-size:12px; display:block;">📍 المنطقة: ${d.area || 'غير محددة'}</span>
                             </div>
                             <button class="btn-delete" onclick="deleteDeliveryOption('${docSnap.id}')">حذف</button>
                         </div>
@@ -428,6 +425,7 @@
                         });
                     }
 
+                    // تنظيف وتجهيز رقم الهاتف للواتساب
                     let cleanPhone = (ord.customerPhone || '').replace(/[^0-9]/g, '');
                     if (cleanPhone.startsWith('0')) {
                         cleanPhone = '249' + cleanPhone.substring(1);
@@ -519,25 +517,14 @@
     <div class="container">
         <h1>⚙ لوحة إدارة Mohamed Store</h1>
 
-        <!-- قسم خيارات التوصيل (محدث ليشمل اختيار المنطقة) -->
+        <!-- قسم خيارات التوصيل -->
         <div class="card">
             <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خدمات التوصيل والأسعار</h2>
-            
-            <div class="form-group">
-                <label>المنطقة التابع لها خيار التوصيل *</label>
-                <select id="delArea">
-                    <option value="عطبرة">عطبرة</option>
-                    <option value="أمدرمان">أمدرمان</option>
-                    <option value="بورتسودان">بورتسودان</option>
-                </select>
-            </div>
-
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="delName" placeholder="اسم الخدمة (مثال: توصيل داخل الحي)">
+                <input type="text" id="delName" placeholder="اسم الخدمة (مثال: توصيل داخل عطبرة)">
                 <input type="number" id="delPrice" placeholder="السعر (ج.س)">
             </div>
-            
-            <button class="btn-secondary" style="width:100%; margin-bottom:15px;" onclick="addDeliveryOption()">+ إضافة خيار توصيل للمنطقة</button>
+            <button class="btn-secondary" style="width:100%; margin-bottom:15px;" onclick="addDeliveryOption()">+ إضافة خيار توصيل</button>
             
             <div id="deliveryList">جاري التحميل...</div>
         </div>
