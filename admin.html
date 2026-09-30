@@ -120,6 +120,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // متغير لتخزين الصورة المحولة كـ Base64 عند اختيارها من المعرض
+        let selectedImageBase64 = "";
+
+        window.handleImageUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImageBase64 = e.target.result;
+                const previewText = document.getElementById('imgPreviewText');
+                previewText.innerHTML = "✅ تم اختيار الصورة بنجاح من المعرض!";
+                previewText.style.color = "#34d399";
+            };
+            reader.readAsDataURL(file);
+        };
+
         // --- إدارة خيارات التوصيل ---
         window.saveDeliveryOption = async function() {
             const name = document.getElementById('delName').value.trim();
@@ -212,13 +229,17 @@
         window.saveProduct = async function() {
             const name = document.getElementById('pName').value.trim();
             const price = document.getElementById('pPrice').value.trim();
-            const img = document.getElementById('pImg').value.trim();
             const area = document.getElementById('pArea').value;
             const sizes = document.getElementById('pSizes').value.trim();
             const colors = document.getElementById('pColors').value.trim();
 
-            if (!name || !price || !img) {
-                alert('يرجى ملء الحقول الأساسية (الاسم، السعر، ورابط الصورة).');
+            if (!name || !price) {
+                alert('يرجى ملء الحقول الأساسية (الاسم والسعر).');
+                return;
+            }
+
+            if (!selectedImageBase64) {
+                alert('يرجى اختيار صورة المنتج من المعرض.');
                 return;
             }
 
@@ -226,7 +247,7 @@
                 await addDoc(collection(db, "products"), {
                     name,
                     price: Number(price),
-                    img,
+                    img: selectedImageBase64, // حفظ الصورة المحولة مباشرة
                     area,
                     sizes: sizes || 'حسب المتاح',
                     colors: colors || 'جميع الألوان متوفرة',
@@ -235,7 +256,10 @@
                 alert('تم إضافة العرض بنجاح!');
                 document.getElementById('pName').value = '';
                 document.getElementById('pPrice').value = '';
-                document.getElementById('pImg').value = '';
+                document.getElementById('pImageInput').value = '';
+                document.getElementById('imgPreviewText').innerHTML = 'اختر صورة المنتج من المعرض';
+                document.getElementById('imgPreviewText').style.color = '#94a3b8';
+                selectedImageBase64 = "";
                 document.getElementById('pSizes').value = '';
                 document.getElementById('pColors').value = '';
                 customFieldsList = [];
@@ -298,7 +322,7 @@
             <a href="index.html" class="btn" style="text-decoration:none; font-size:13px;" target="_blank">عرض المتجر 🌐</a>
         </div>
 
-        <!-- قسم إدارة خيارات التوصيل (محدث ليرتبط بالمدينة) -->
+        <!-- قسم إدارة خيارات التوصيل -->
         <div class="section-box">
             <div class="section-title">🚚 إدارة خيارات التوصيل حسب المدينة</div>
             <div class="form-grid">
@@ -337,15 +361,16 @@
                     <input type="number" id="pPrice" placeholder="مثال: 15000">
                 </div>
                 <div class="form-group">
-                    <label>رابط الصورة *</label>
-                    <input type="text" id="pImg" placeholder="رابط مباشر للصورة">
+                    <label>صورة المنتج (من المعرض مباشرة) *</label>
+                    <input type="file" id="pImageInput" accept="image/*" onchange="handleImageUpload(event)" style="cursor: pointer;">
+                    <span id="imgPreviewText" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 4px;">اختر صورة المنتج من المعرض</span>
                 </div>
                 <div class="form-group">
                     <label>المنطقة / المدينة *</label>
                     <select id="pArea">
                         <option value="عطبرة">عطبرة</option>
                         <option value="أمدرمان">أمدرمان</option>
-                        بورتسودان<option value="بورتسودان">بورتسودان</option>
+                        <option value="بورتسودان">بورتسودان</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -376,3 +401,4 @@
 
 </body>
 </html>
+ 
