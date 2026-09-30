@@ -161,7 +161,6 @@
 
         .btn-add-cart.added { background: #16a34a; }
 
-        /* تنسيق كرت الإرساليات */
         .shipment-box {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
@@ -174,19 +173,8 @@
             margin: 20px auto;
         }
 
-        .shipment-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: #fbbf24;
-            margin-bottom: 12px;
-        }
-
-        .shipment-desc {
-            font-size: 14px;
-            color: #cbd5e1;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
+        .shipment-title { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 12px; }
+        .shipment-desc { font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 20px; }
 
         .btn-wa-shipment {
             display: inline-flex;
@@ -202,11 +190,6 @@
             font-size: 16px;
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
             transition: all 0.3s ease;
-        }
-
-        .btn-wa-shipment:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
         }
 
         .cart-bar {
@@ -226,7 +209,6 @@
         }
 
         .cart-bar.active { transform: translateY(0); }
-
         .cart-info { font-weight: 700; }
         .cart-count { color: #fbbf24; font-size: 14px; }
         .cart-total { color: #22c55e; font-size: 18px; font-weight: 800; }
@@ -293,15 +275,7 @@
         }
 
         .form-group { margin-bottom: 12px; }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #cbd5e1;
-        }
-
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: #cbd5e1; }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px;
@@ -393,7 +367,7 @@
         let cart = [];
         let pendingProductId = null;
         let selectedQty = 1;
-        let currentAreaFilter = 'عطبرة'; // المنطقة الافتراضية الأولى
+        let currentAreaFilter = 'عطبرة';
 
         async function loadData() {
             const grid = document.getElementById('productsGrid');
@@ -407,7 +381,6 @@
                 querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
                 
                 updateAreaTabs();
-                // العرض الافتراضي لأول مدينة أو إرساليات
                 filterArea(currentAreaFilter, document.querySelector(`.tab-btn[onclick*="${currentAreaFilter}"]`) || document.querySelectorAll('.tab-btn')[0]);
             } catch (e) {
                 grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل البيانات</p>';
@@ -482,12 +455,8 @@
                         <div class="product-details">
                             <h3 class="product-title">${p.name}</h3>
                             <div class="product-price">${p.price} ج.س</div>
-                            <div class="product-meta-info">
-                                📐 <strong>المقاسات:</strong> ${sizesDisplay}
-                            </div>
-                            <div class="product-meta-info">
-                                🎨 <strong>الألوان:</strong> ${colorsDisplay}
-                            </div>
+                            <div class="product-meta-info">📐 <strong>المقاسات:</strong> ${sizesDisplay}</div>
+                            <div class="product-meta-info">🎨 <strong>الألوان:</strong> ${colorsDisplay}</div>
                             ${customFieldsHtml}
                             <button class="btn-add-cart ${isInCart ? 'added' : ''}" id="btn-${p.id}" onclick="handleCartClick('${p.id}')">
                                 ${isInCart ? '✓ تم الاختيار' + qtyText : '🛒 إضافة للطلب'}
@@ -525,11 +494,7 @@
             if (product) {
                 const itemsDetails = [];
                 for (let i = 0; i < selectedQty; i++) {
-                    itemsDetails.push({
-                        size: '',
-                        color: '',
-                        customAnswers: {}
-                    });
+                    itemsDetails.push({ size: '', color: '', customAnswers: {} });
                 }
 
                 cart.push({
@@ -574,7 +539,6 @@
 
             cart.forEach((item, idx) => {
                 let unitsHtml = '';
-
                 item.units.forEach((unit, uIdx) => {
                     let customAnswersHtml = '';
                     if (item.customFields && item.customFields.length > 0) {
@@ -593,9 +557,7 @@
 
                     unitsHtml += `
                         <div class="unit-box">
-                            <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 4px;">
-                                🏷️ القطعة رقم (${uIdx + 1}):
-                            </div>
+                            <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 4px;">🏷️ القطعة رقم (${uIdx + 1}):</div>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                                 <div>
                                     <input type="text" placeholder="المقاس (مثال: M أو 42)" 
@@ -626,27 +588,31 @@
                 `;
             });
 
+            // فلترة خدمات التوصيل لتظهر فقط الخدمات الخاصة بالمنطقة المحددة
             const deliverySelect = document.getElementById('custDelivery');
-            deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضلة...</option>`;
-            deliveryOptions.forEach(opt => {
-                deliverySelect.innerHTML += `<option value="${opt.price}" data-name="${opt.name}">${opt.name} - (${opt.price} ج.س)</option>`;
-            });
+            deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضلة في (${currentAreaFilter})...</option>`;
+
+            const areaDeliveries = deliveryOptions.filter(opt => !opt.area || opt.area === currentAreaFilter);
+
+            if (areaDeliveries.length > 0) {
+                areaDeliveries.forEach(opt => {
+                    deliverySelect.innerHTML += `<option value="${opt.price}" data-name="${opt.name}">${opt.name} - (${opt.price} ج.س)</option>`;
+                });
+            } else {
+                deliverySelect.innerHTML += `<option value="0" data-name="توصيل حسب الاتفاق">لا توجد خيارات معينة - سيتم الاتفاق على التوصيل</option>`;
+            }
 
             document.getElementById('checkoutModal').style.display = 'flex';
         };
 
         window.updateUnitSize = function(itemId, unitIdx, val) {
             const item = cart.find(i => i.id === itemId);
-            if (item && item.units[unitIdx]) {
-                item.units[unitIdx].size = val.trim();
-            }
+            if (item && item.units[unitIdx]) item.units[unitIdx].size = val.trim();
         };
 
         window.updateUnitColor = function(itemId, unitIdx, val) {
             const item = cart.find(i => i.id === itemId);
-            if (item && item.units[unitIdx]) {
-                item.units[unitIdx].color = val.trim();
-            }
+            if (item && item.units[unitIdx]) item.units[unitIdx].color = val.trim();
         };
 
         window.updateUnitCustom = function(itemId, unitIdx, fieldName, val) {
@@ -732,6 +698,7 @@
 
             let text = `طلب جديد - Mohamed Store%0A` +
                        `========================%0A` +
+                       `المنطقة / المدينة: ${currentAreaFilter}%0A` +
                        `المنتجات والخيارات المطلوبة:%0A${itemsText}` +
                        `خدمة التوصيل: ${deliveryName} (${deliveryCost} ج.س)%0A` +
                        `المبلغ الإجمالي الكلي: ${totalAmount} ج.س%0A` +
@@ -786,7 +753,6 @@
     </div>
 
     <div class="container">
-        <!-- قسم الإرساليات الخارجي -->
         <div id="shipmentView" style="display: none;">
             <div class="shipment-box">
                 <div class="shipment-title">📦 طلبات الإرساليات إلى باقي الولايات</div>
@@ -800,7 +766,6 @@
             </div>
         </div>
 
-        <!-- شبكة عرض المنتجات للولايات والمدن -->
         <div class="products-grid" id="productsGrid">
             <p style="text-align: center; width: 100%; grid-column: 1/-1; color: #fff;">جاري تحميل العروض...</p>
         </div>
@@ -814,12 +779,11 @@
         <button class="btn-checkout" onclick="openCheckoutModal()">إتمام الطلب الآن 🛍️</button>
     </div>
 
-    <!-- نافذة تحديد العدد المطلوب -->
     <div class="modal" id="qtyModal">
         <div class="modal-content" style="text-align: center;">
             <div class="modal-header" id="qtyModalTitle">حدد العدد المطلوب</div>
             <p style="color: #cbd5e1; font-size: 13px; margin-bottom: 10px;">كم قطعة تريد طلبها من هذا العرض؟</p>
-            
+
             <div class="qty-picker-container">
                 <button class="qty-btn" onclick="changeQty(-1)">-</button>
                 <span class="qty-val" id="modalQtyVal">1</span>
@@ -831,7 +795,6 @@
         </div>
     </div>
 
-    <!-- نافذة إتمام الطلب والبيانات -->
     <div class="modal" id="checkoutModal">
         <div class="modal-content">
             <div class="modal-header">تحديد الألوان والمقاسات وإتمام الطلب</div>
@@ -871,7 +834,6 @@
         </div>
     </div>
 
-    <!-- نافذة معاينة الصورة -->
     <div class="modal" id="previewModal" onclick="closePreview()">
         <div class="modal-content" style="background: transparent; border: none; text-align: center;">
             <img id="previewModalImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
