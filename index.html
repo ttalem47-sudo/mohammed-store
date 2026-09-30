@@ -162,6 +162,7 @@
         }
 
         .btn-add-cart.added { background: #16a34a; }
+        .btn-add-cart.sent { background: #059669; cursor: default; }
 
         .cart-bar {
             position: fixed;
@@ -343,6 +344,7 @@
         let allProducts = [];
         let deliveryOptions = [];
         let cart = [];
+        let sentOrderIds = new Set(); // لتتبع الأغراض التي تم إرسالها
         let pendingProductId = null;
         let selectedQty = 1;
 
@@ -366,20 +368,28 @@
 
         function updateAreaTabs() {
             const tabsContainer = document.getElementById('tabsContainer');
-            const defaultAreas = ["عطبرة", "أمدرمان", "بورتسودان"];
-            const existingAreas = new Set(defaultAreas);
+            
+            const dynamicAreas = new Set();
+            allProducts.forEach(p => { 
+                if (p.area && p.area.trim() !== "") {
+                    dynamicAreas.add(p.area.trim()); 
+                }
+            });
 
-            allProducts.forEach(p => { if (p.area) existingAreas.add(p.area); });
+            let html = `<button class="tab-btn active" onclick="openWhatsAppForShipments(this)">الارساليات</button>`;
+            html += `<button class="tab-btn" onclick="filterArea('all', this)">كل المنتجات</button>`;
 
-            let html = `<button class="tab-btn active" onclick="openWhatsAppForShipments()">الارساليات</button>`;
-            existingAreas.forEach(area => {
+            dynamicAreas.forEach(area => {
                 html += `<button class="tab-btn" onclick="filterArea('${area}', this)">${area}</button>`;
             });
 
             tabsContainer.innerHTML = html;
         }
 
-        window.openWhatsAppForShipments = function() {
+        window.openWhatsAppForShipments = function(btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
             const myNum = "249901358927";
             const msg = encodeURIComponent("مرحباً، أود الاستفسار والطلب بالنسبة للارساليات 📦");
             window.open(`https://wa.me/${myNum}?text=${msg}`, '_blank');
@@ -402,14 +412,25 @@
             grid.innerHTML = "";
 
             if (products.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: #cbd5e1; padding: 40px; background: rgba(15, 23, 42, 0.6); border-radius: 12px;">لا توجد عروض متوفرة حالياً</p>';
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: #cbd5e1; padding: 40px; background: rgba(15, 23, 42, 0.6); border-radius: 12px;">لا توجد عروض متوفرة حالياً في هذه المنطقة</p>';
                 return;
             }
 
             products.forEach(p => {
                 const cartItem = cart.find(item => item.id === p.id);
                 const isInCart = !!cartItem;
-                const qtyText = isInCart ? ` (العدد: ${cartItem.quantity})` : '';
+                const isSent = sentOrderIds.has(p.id);
+
+                let btnText = '🛒 إضافة للطلب';
+                let btnClass = 'btn-add-cart';
+
+                if (isSent) {
+                    btnText = '✅ تم إرسال الطلبية';
+                    btnClass += ' sent';
+                } else if (isInCart) {
+                    btnText = `✓ تم الاختيار (العدد: ${cartItem.quantity})`;
+                    btnClass += ' added';
+                }
 
                 const sizesDisplay = p.sizes ? p.sizes : 'حسب المتاح';
                 const colorsDisplay = p.colors ? p.colors : 'جميع الألوان متوفرة';
@@ -436,8 +457,8 @@
                                 🎨 <strong>الألوان:</strong> ${colorsDisplay}
                             </div>
                             ${customFieldsHtml}
-                            <button class="btn-add-cart ${isInCart ? 'added' : ''}" id="btn-${p.id}" onclick="handleCartClick('${p.id}')">
-                                ${isInCart ? '✓ تم الاختيار' + qtyText : '🛒 إضافة للطلب'}
+                            <button class="${btnClass}" id="btn-${p.id}" onclick="handleCartClick('${p.id}')">
+                                ${btnText}
                             </button>
                         </div>
                     </div>
@@ -446,6 +467,8 @@
         }
 
         window.handleCartClick = function(productId) {
+            if (sentOrderIds.has(productId)) return; // يتجاهل النقر إذا تم إرسال الطلب بالفعل
+
             const index = cart.findIndex(item => item.id === productId);
             if (index > -1) {
                 cart.splice(index, 1);
@@ -626,6 +649,7 @@
 
             const finalCartItems = [];
             cart.forEach(item => {
+                sentOrderIds.add(item.id); // إضافة المنتجات المختارة إلى قائمة المنتجات التي تم إرسال طلبها
                 item.units.forEach((unit, uIdx) => {
                     finalCartItems.push({
                         name: `${item.name} (قطعة ${uIdx + 1} من ${item.quantity})`,
@@ -689,7 +713,11 @@
             if (customerNotes) text += `ملاحظات الزبون: ${customerNotes}%0A`;
 
             window.open(`https://wa.me/${myWhatsAppNumber}?text=${text}`, '_blank');
+            
+            // إعادة ضبط السلة وتحديث الواجهة ليصبح الزر "تم إرسال الطلبية"
+            cart = [];
             closeCheckoutModal();
+            updateCartUI();
         };
 
         window.openPreview = function(imgSrc) {
@@ -723,12 +751,7 @@
         </div>
     </div>
 
-    <div class="tabs-container" id="tabsContainer">
-        <button class="tab-btn active" onclick="openWhatsAppForShipments()">الارساليات</button>
-        <button class="tab-btn" onclick="filterArea('عطبرة', this)">عطبرة</button>
-        <button class="tab-btn" onclick="filterArea('أمدرمان', this)">أمدرمان</button>
-        <button class="tab-btn" onclick="filterArea('بورتسودان', this)">بورتسودان</button>
-    </div>
+    <div class="tabs-container" id="tabsContainer"></div>
 
     <div class="container">
         <div class="products-grid" id="productsGrid">
@@ -744,7 +767,6 @@
         <button class="btn-checkout" onclick="openCheckoutModal()">إتمام الطلب الآن 🛍️</button>
     </div>
 
-    <!-- نافذة تحديد العدد المطلوب -->
     <div class="modal" id="qtyModal">
         <div class="modal-content" style="text-align: center;">
             <div class="modal-header" id="qtyModalTitle">حدد العدد المطلوب</div>
@@ -761,7 +783,6 @@
         </div>
     </div>
 
-    <!-- نافذة إتمام الطلب والبيانات -->
     <div class="modal" id="checkoutModal">
         <div class="modal-content">
             <div class="modal-header">تحديد الألوان والمقاسات وإتمام الطلب</div>
@@ -801,7 +822,6 @@
         </div>
     </div>
 
-    <!-- نافذة معاينة الصورة -->
     <div class="modal" id="previewModal" onclick="closePreview()">
         <div class="modal-content" style="background: transparent; border: none; text-align: center;">
             <img id="previewModalImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px; border: 2px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
