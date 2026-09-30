@@ -294,18 +294,20 @@
             }
         };
 
-        // إدارة خيارات التوصيل
+        // إدارة خيارات التوصيل (مرتبطة بالمدينة)
         window.addDeliveryOption = async function() {
+            const city = document.getElementById('delCity').value;
             const name = document.getElementById('delName').value.trim();
             const price = document.getElementById('delPrice').value.trim();
 
             if (!name) {
-                alert('يرجى إدخال اسم خيار التوصيل (مثال: توصيل داخل عطبرة)');
+                alert('يرجى إدخال اسم خيار التوصيل (مثال: الحي الشمالي)');
                 return;
             }
 
             try {
                 await addDoc(collection(db, "delivery_options"), {
+                    city,
                     name,
                     price: Number(price) || 0
                 });
@@ -323,11 +325,16 @@
             try {
                 const snap = await getDocs(collection(db, "delivery_options"));
                 list.innerHTML = "";
+                if (snap.empty) {
+                    list.innerHTML = "<p style='color:#cbd5e1; font-size:13px;'>لا توجد خيارات توصيل مضافة حالياً.</p>";
+                    return;
+                }
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
                     list.innerHTML += `
                         <div class="product-list-item">
                             <div>
+                                <span style="background:#0284c7; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;">📍 ${d.city}</span>
                                 <strong>🚚 ${d.name}</strong> 
                                 <span style="color:#fbbf24; font-size:13px; margin-right:10px;">(${d.price} ج.س)</span>
                             </div>
@@ -517,14 +524,25 @@
     <div class="container">
         <h1>⚙ لوحة إدارة Mohamed Store</h1>
 
-        <!-- قسم خيارات التوصيل -->
+        <!-- قسم خيارات التوصيل المرتبطة بالمدن -->
         <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خدمات التوصيل والأسعار</h2>
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خيارات التوصيل لكل مدينة</h2>
+            
+            <div class="form-group">
+                <label>اختر المدينة:</label>
+                <select id="delCity">
+                    <option value="عطبرة">عطبرة</option>
+                    <option value="أمدرمان">أمدرمان</option>
+                    <option value="بورتسودان">بورتسودان</option>
+                </select>
+            </div>
+
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="delName" placeholder="اسم الخدمة (مثال: توصيل داخل عطبرة)">
+                <input type="text" id="delName" placeholder="خيار التوصيل (مثال: السوق / الحي الشمالي)">
                 <input type="number" id="delPrice" placeholder="السعر (ج.س)">
             </div>
-            <button class="btn-secondary" style="width:100%; margin-bottom:15px;" onclick="addDeliveryOption()">+ إضافة خيار توصيل</button>
+            
+            <button class="btn-secondary" style="width:100%; margin-bottom:15px;" onclick="addDeliveryOption()">+ إضافة خيار توصيل لهذه المدينة</button>
             
             <div id="deliveryList">جاري التحميل...</div>
         </div>
@@ -602,3 +620,4 @@
 
 </body>
 </html>
+ 
