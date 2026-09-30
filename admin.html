@@ -110,7 +110,7 @@
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 15px;
-            border-right: 4px solid #16a34a;
+            border-right: 4px solid #d97706;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -153,6 +153,19 @@
             display: flex;
             gap: 8px;
             margin-bottom: 8px;
+        }
+
+        .btn-wa-direct {
+            background: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .modal {
@@ -369,14 +382,14 @@
             }
         }
 
-        // تحميل الطلبات الواردة
+        // تحميل الطلبات الواردة (الطلبات المعلقة)
         async function loadAdminOrders() {
             const list = document.getElementById('adminOrdersList');
-            list.innerHTML = "جاري تحميل الطلبات...";
+            list.innerHTML = "جاري تحميل الطلبات المعلقة...";
             try {
                 const querySnapshot = await getDocs(collection(db, "orders"));
                 if (querySnapshot.empty) {
-                    list.innerHTML = "<p style='color: #cbd5e1; text-align: center; padding: 10px;'>لا توجد طلبات مسجلة حالياً.</p>";
+                    list.innerHTML = "<p style='color: #cbd5e1; text-align: center; padding: 10px;'>لا توجد طلبات معلقة مسجلة حالياً.</p>";
                     return;
                 }
 
@@ -391,7 +404,7 @@
                             let customAnswersText = '';
                             if (item.customAnswers) {
                                 for (const [k, v] of Object.entries(item.customAnswers)) {
-                                    customAnswersText += ` | ${k}: ${v}`;
+                                    if(v) customAnswersText += ` | ${k}: ${v}`;
                                 }
                             }
 
@@ -401,7 +414,7 @@
                                     <div style="font-size:13px;">
                                         <div style="font-weight:bold; color:#f8fafc;">${item.name}</div>
                                         <div style="color:#cbd5e1;">
-                                            المقاس: <strong style="color:#fbbf24;">${item.size}</strong> | 
+                                            المقاس: <strong style="color:#fbbf24;">${item.size || 'غير محدد'}</strong> | 
                                             اللون: <strong style="color:#fbbf24;">${item.color || 'غير محدد'}</strong>
                                             ${customAnswersText ? `<span style="color:#38bdf8;">${customAnswersText}</span>` : ''}
                                             | السعر: ${item.price} ج.س
@@ -412,6 +425,12 @@
                         });
                     }
 
+                    // تنظيف وتجهيز رقم الهاتف للواتساب
+                    let cleanPhone = (ord.customerPhone || '').replace(/[^0-9]/g, '');
+                    if (cleanPhone.startsWith('0')) {
+                        cleanPhone = '249' + cleanPhone.substring(1);
+                    }
+
                     list.innerHTML += `
                         <div class="order-card">
                             <div class="order-header">
@@ -419,10 +438,15 @@
                                     <strong style="color:#fbbf24; font-size:16px;">👤 ${ord.customerName}</strong>
                                     <span style="font-size:11px; color:#cbd5e1; display:block;">🕒 ${ord.date || ''}</span>
                                 </div>
-                                <button class="btn-delete" onclick="deleteOrder('${docSnap.id}')">حذف الطلب</button>
+                                <div style="display:flex; gap:8px;">
+                                    <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa-direct">
+                                        💬 مراسلة الزبون
+                                    </a>
+                                    <button class="btn-delete" onclick="deleteOrder('${docSnap.id}')">إنهاء/حذف</button>
+                                </div>
                             </div>
                             <div style="font-size:13px; color:#cbd5e1; margin-bottom:5px;">
-                                📞 <strong>الهاتف:</strong> ${ord.customerPhone} ${ord.customerPhone2 !== 'لا يوجد' ? ' | 📱 احتياطي: ' + ord.customerPhone2 : ''}
+                                📞 <strong>الهاتف:</strong> ${ord.customerPhone} ${ord.customerPhone2 && ord.customerPhone2 !== 'لا يوجد' ? ' | 📱 احتياطي: ' + ord.customerPhone2 : ''}
                             </div>
                             <div style="font-size:13px; color:#cbd5e1; margin-bottom:5px;">
                                 📍 <strong>العنوان:</strong> ${ord.customerAddress}
@@ -437,7 +461,7 @@
                             </div>
 
                             <div style="font-size:13px; color:#e2e8f0; margin-top:5px;">
-                                📝 <strong>الملاحظات:</strong> ${ord.customerNotes}
+                                📝 <strong>الملاحظات:</strong> ${ord.customerNotes || 'لا توجد'}
                             </div>
                             <div style="text-align:left; font-weight:800; color:#22c55e; font-size:16px; margin-top:8px;">
                                 المبلغ الإجمالي الكلي: ${ord.totalAmount || ord.itemsTotal} ج.س
@@ -464,7 +488,7 @@
         window.deleteOrder = async function(id) {
             if (confirm('هل أنت متأكد من حذف/إنهاء هذا الطلب؟')) {
                 try {
-                    await deleteDoc(doc(doc(db, "orders", id)));
+                    await deleteDoc(doc(db, "orders", id));
                     loadAdminOrders();
                 } catch (e) {
                     alert('خطأ في حذف الطلب');
@@ -495,7 +519,7 @@
 
         <!-- قسم خيارات التوصيل -->
         <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خدمات التوصيل الأسعار</h2>
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خدمات التوصيل والأسعار</h2>
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
                 <input type="text" id="delName" placeholder="اسم الخدمة (مثال: توصيل داخل عطبرة)">
                 <input type="number" id="delPrice" placeholder="السعر (ج.س)">
@@ -557,9 +581,9 @@
             <button class="btn-add" onclick="addProduct()">إضافة العرض الآن</button>
         </div>
 
-        <!-- قسم عرض الطلبات الواردة -->
+        <!-- قسم عرض الطلبات المعلقة/الواردة -->
         <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #22c55e;">📦 الطلبات الواردة من الزبائن</h2>
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: #22c55e;">📋 الطلبات المعلقة (الواردة من الزبائن)</h2>
             <div id="adminOrdersList">جاري التحميل...</div>
         </div>
 
@@ -578,3 +602,4 @@
 
 </body>
 </html>
+ 
