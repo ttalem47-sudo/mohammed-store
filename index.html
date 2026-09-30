@@ -18,7 +18,6 @@
             padding-bottom: 100px;
         }
 
-        /* --- شاشة الافتتاحية --- */
         #splashScreen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -46,7 +45,6 @@
             100% { transform: scale(0.95); box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
         }
 
-        /* --- Navbar --- */
         .navbar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -134,13 +132,13 @@
         .product-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: #f8fafc; }
         .product-price { font-size: 18px; font-weight: 800; color: #fbbf24; margin-bottom: 8px; }
 
-        .product-sizes-info {
-            font-size: 13px;
+        .product-meta-info {
+            font-size: 12px;
             color: #cbd5e1;
             background: rgba(255, 255, 255, 0.08);
             padding: 6px 10px;
             border-radius: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -158,13 +156,11 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            margin-top: 10px;
         }
 
-        .btn-add-cart.added {
-            background: #16a34a;
-        }
+        .btn-add-cart.added { background: #16a34a; }
 
-        /* --- الشريط السفلي للسلة --- */
         .cart-bar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -198,7 +194,6 @@
             font-size: 15px;
         }
 
-        /* --- Modal --- */
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -251,7 +246,7 @@
             color: #cbd5e1;
         }
 
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px;
             border: 1.5px solid rgba(255,255,255,0.2);
@@ -261,10 +256,7 @@
             font-size: 14px;
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
 
         .btn-confirm {
             width: 100%;
@@ -293,7 +285,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -308,11 +300,18 @@
         const db = getFirestore(app);
 
         let allProducts = [];
+        let deliveryOptions = [];
         let cart = [];
 
-        async function loadProducts() {
+        async function loadData() {
             const grid = document.getElementById('productsGrid');
             try {
+                // تحميل خيارات التوصيل
+                const delSnap = await getDocs(collection(db, "delivery_options"));
+                deliveryOptions = [];
+                delSnap.forEach(doc => deliveryOptions.push({ id: doc.id, ...doc.data() }));
+
+                // تحميل المنتجات
                 const querySnapshot = await getDocs(collection(db, "products"));
                 allProducts = [];
                 querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
@@ -320,7 +319,7 @@
                 updateAreaTabs();
                 renderProducts(allProducts);
             } catch (e) {
-                grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل المنتجات</p>';
+                grid.innerHTML = '<p style="text-align:center; width:100%;">خطأ في تحميل البيانات</p>';
             }
         }
 
@@ -362,7 +361,16 @@
 
             products.forEach(p => {
                 const isInCart = cart.some(item => item.id === p.id);
-                const sizesDisplay = p.sizes ? p.sizes : 'جميع المقاسات متوفرة';
+                const sizesDisplay = p.sizes ? p.sizes : 'حسب المتاح';
+                const colorsDisplay = p.colors ? p.colors : 'جميع الألوان متوفرة';
+
+                // تجهيز الخانات المخصصة
+                let customFieldsHtml = '';
+                if (p.customFields && p.customFields.length > 0) {
+                    p.customFields.forEach(cf => {
+                        customFieldsHtml += `<div class="product-meta-info">📌 <strong>${cf.name}:</strong> ${cf.value}</div>`;
+                    });
+                }
 
                 grid.innerHTML += `
                     <div class="product-card ${isInCart ? 'selected' : ''}" id="card-${p.id}">
@@ -372,9 +380,13 @@
                         <div class="product-details">
                             <h3 class="product-title">${p.name}</h3>
                             <div class="product-price">${p.price} ج.س</div>
-                            <div class="product-sizes-info">
-                                📐 <strong>المقاسات المتاحة:</strong> ${sizesDisplay}
+                            <div class="product-meta-info">
+                                📐 <strong>المقاسات:</strong> ${sizesDisplay}
                             </div>
+                            <div class="product-meta-info">
+                                🎨 <strong>الألوان:</strong> ${colorsDisplay}
+                            </div>
+                            ${customFieldsHtml}
                             <button class="btn-add-cart ${isInCart ? 'added' : ''}" id="btn-${p.id}" onclick="toggleCart('${p.id}')">
                                 ${isInCart ? '✓ تم الاختيار' : '🛒 إضافة للطلب'}
                             </button>
@@ -391,7 +403,7 @@
             if (index > -1) {
                 cart.splice(index, 1);
             } else {
-                cart.push({ ...product, userSize: '' });
+                cart.push({ ...product, userSize: '', userColor: '', userCustomAnswers: {} });
             }
 
             updateCartUI();
@@ -435,19 +447,48 @@
             container.innerHTML = '';
 
             cart.forEach((item, idx) => {
+                let customAnswersHtml = '';
+                if (item.customFields && item.customFields.length > 0) {
+                    item.customFields.forEach(cf => {
+                        customAnswersHtml += `
+                            <div style="margin-top: 5px;">
+                                <label style="font-size:11px; color:#cbd5e1;">${cf.name}:</label>
+                                <input type="text" placeholder="${cf.value}" 
+                                       onchange="updateCustomAnswer('${item.id}', '${cf.name}', this.value)" 
+                                       style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                            </div>
+                        `;
+                    });
+                }
+
                 container.innerHTML += `
                     <div class="selected-item-row">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24;">
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24; font-size:14px;">
                             <span>${idx + 1}. ${item.name}</span>
                             <span>${item.price} ج.س</span>
                         </div>
-                        <div style="margin-top: 5px;">
-                            <input type="text" placeholder="حدد المقاس لهذا العرض (مثال: M أو 42)" 
-                                   onchange="updateItemSize('${item.id}', this.value)" 
-                                   style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+                            <div>
+                                <input type="text" placeholder="المقاس (مثال: M أو 42)" 
+                                       onchange="updateItemSize('${item.id}', this.value)" 
+                                       style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                            </div>
+                            <div>
+                                <input type="text" placeholder="اللون المطلوب (مثال: أسود)" 
+                                       onchange="updateItemColor('${item.id}', this.value)" 
+                                       style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                            </div>
                         </div>
+                        ${customAnswersHtml}
                     </div>
                 `;
+            });
+
+            // تجهيز خيارات التوصيل
+            const deliverySelect = document.getElementById('custDelivery');
+            deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضل...</option>`;
+            deliveryOptions.forEach(opt => {
+                deliverySelect.innerHTML += `<option value="${opt.price}" data-name="${opt.name}">${opt.name} - (${opt.price} ج.س)</option>`;
             });
 
             document.getElementById('checkoutModal').style.display = 'flex';
@@ -458,50 +499,100 @@
             if (item) item.userSize = value.trim() || 'حسب المتاح';
         };
 
+        window.updateItemColor = function(id, value) {
+            const item = cart.find(i => i.id === id);
+            if (item) item.userColor = value.trim() || 'حسب المتاح';
+        };
+
+        window.updateCustomAnswer = function(id, fieldName, value) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                if (!item.userCustomAnswers) item.userCustomAnswers = {};
+                item.userCustomAnswers[fieldName] = value.trim();
+            }
+        };
+
         window.closeCheckoutModal = function() {
             document.getElementById('checkoutModal').style.display = 'none';
         };
 
-        window.submitOrderToWhatsApp = function() {
+        window.submitOrderToWhatsApp = async function() {
             const customerName = document.getElementById('custName').value.trim();
             const customerPhone = document.getElementById('custPhone').value.trim();
             const customerPhone2 = document.getElementById('custPhone2').value.trim();
             const customerAddress = document.getElementById('custAddress').value.trim();
             const customerNotes = document.getElementById('custNotes').value.trim();
+            
+            const deliverySelect = document.getElementById('custDelivery');
+            const deliveryCost = Number(deliverySelect.value) || 0;
+            const deliveryName = deliverySelect.options[deliverySelect.selectedIndex].getAttribute('data-name') || 'غير محدد';
 
             if (!customerName || !customerPhone || !customerAddress) {
                 alert('يرجى إدخال الاسم، رقم الهاتف الرئيسي، والعنوان الدقيق.');
                 return;
             }
 
-            const myWhatsAppNumber = "249901358927";
-            const totalAmount = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const itemsTotal = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+            const totalAmount = itemsTotal + deliveryCost;
 
+            const finalCartItems = cart.map(i => ({ 
+                name: i.name, 
+                price: i.price, 
+                size: i.userSize || 'غير محدد',
+                color: i.userColor || 'غير محدد',
+                customAnswers: i.userCustomAnswers || {},
+                img: i.img || '' 
+            }));
+
+            // حفظ الطلب في Firestore
+            try {
+                await addDoc(collection(db, "orders"), {
+                    customerName,
+                    customerPhone,
+                    customerPhone2: customerPhone2 || 'لا يوجد',
+                    customerAddress,
+                    deliveryService: `${deliveryName} (${deliveryCost} ج.س)`,
+                    deliveryCost,
+                    customerNotes: customerNotes || 'لا توجد ملاحظات',
+                    items: finalCartItems,
+                    itemsTotal,
+                    totalAmount,
+                    date: new Date().toLocaleString('ar-EG')
+                });
+            } catch(e) {
+                console.log("حدث خطأ أثناء حفظ الطلب في قاعدة البيانات", e);
+            }
+
+            // إرسال عبر الواتساب
+            const myWhatsAppNumber = "249901358927";
             let itemsText = "";
             cart.forEach((item, index) => {
                 const sizeStr = item.userSize ? item.userSize : 'غير محدد';
-                itemsText += `${index + 1}. ${item.name}%0A   - المقاس: ${sizeStr}%0A   - السعر: ${item.price} ج.س%0A`;
+                const colorStr = item.userColor ? item.userColor : 'غير محدد';
+                
+                let customStr = "";
+                if (item.userCustomAnswers) {
+                    for (const [k, v] of Object.entries(item.userCustomAnswers)) {
+                        customStr += `   - ${k}: ${v}%0A`;
+                    }
+                }
+
+                itemsText += `${index + 1}. ${item.name}%0A   - المقاس: ${sizeStr}%0A   - اللون: ${colorStr}%0A${customStr}   - السعر: ${item.price} ج.س%0A`;
             });
 
             let text = `طلب جديد - Mohamed Store%0A` +
                        `========================%0A` +
                        `المنتجات المطلوبة:%0A${itemsText}` +
                        `------------------------%0A` +
-                       `عدد العروض: ${cart.length}%0A` +
-                       `المبلغ الإجمالي: ${totalAmount} ج.س%0A` +
+                       `خدمة التوصيل: ${deliveryName} (${deliveryCost} ج.س)%0A` +
+                       `المبلغ الإجمالي الكلي: ${totalAmount} ج.س%0A` +
                        `========================%0A` +
                        `اسم الزبون: ${customerName}%0A` +
                        `رقم الهاتف الرئيسي: ${customerPhone}%0A`;
 
-            if (customerPhone2) {
-                text += `رقم هاتف احتياطي: ${customerPhone2}%0A`;
-            }
-
+            if (customerPhone2) text += `رقم هاتف احتياطي: ${customerPhone2}%0A`;
             text += `العنوان والمنطقة: ${customerAddress}%0A`;
-
-            if (customerNotes) {
-                text += `ملاحظات الزبون: ${customerNotes}%0A`;
-            }
+            if (customerNotes) text += `ملاحظات الزبون: ${customerNotes}%0A`;
 
             window.open(`https://wa.me/${myWhatsAppNumber}?text=${text}`, '_blank');
             closeCheckoutModal();
@@ -517,7 +608,7 @@
         };
 
         window.onload = () => {
-            loadProducts();
+            loadData();
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
                 if (splash) splash.classList.add('hidden');
@@ -551,7 +642,6 @@
         </div>
     </div>
 
-    <!-- شريط السلة السفلي -->
     <div class="cart-bar" id="cartBar">
         <div class="cart-info">
             <div class="cart-count" id="cartCount">عدد العروض: 0</div>
@@ -560,14 +650,18 @@
         <button class="btn-checkout" onclick="openCheckoutModal()">إتمام الطلب الآن 🛍️</button>
     </div>
 
-    <!-- نافذة إتمام الشراء -->
     <div class="modal" id="checkoutModal">
         <div class="modal-content">
             <div class="modal-header">تأكيد المشتريات والبيانات</div>
             
             <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold; color: #cbd5e1; font-size: 13px; display: block; margin-bottom: 8px;">العروض المختارة والمقاسات:</label>
+                <label style="font-weight: bold; color: #cbd5e1; font-size: 13px; display: block; margin-bottom: 8px;">العروض المختارة والتفاصيل:</label>
                 <div id="selectedProductsList"></div>
+            </div>
+
+            <div class="form-group">
+                <label>خيار التوصيل *</label>
+                <select id="custDelivery"></select>
             </div>
 
             <div class="form-group">
