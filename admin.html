@@ -4,180 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - Mohamed Store</title>
+    <link rel="icon" href="IMG-20260925-WA0048.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        body { background: #0f172a; color: #f8fafc; padding: 20px; min-height: 100vh; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { font-size: 24px; color: #fbbf24; margin-bottom: 20px; text-align: center; }
         
-        .card {
-            background: rgba(30, 41, 59, 0.9);
-            border-radius: 16px;
+        body { 
+            background: #0f172a; 
+            color: #f8fafc; 
+            min-height: 100vh;
             padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .header {
+            background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 700; color: #cbd5e1; font-size: 14px; }
-        input, select {
+        .header h1 { font-size: 20px; color: #fbbf24; font-weight: 800; }
+        
+        .section-box {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: #cbd5e1; }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px;
+            border: 1.5px solid rgba(255,255,255,0.2);
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: #1e293b;
+            background: rgba(15, 23, 42, 0.9);
             color: #fff;
             font-size: 14px;
         }
 
-        .file-upload-btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background: #3b82f6;
+        .btn {
+            background: #2563eb;
             color: white;
-            text-align: center;
+            border: none;
+            padding: 10px 20px;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background 0.2s;
         }
-        .file-upload-btn:hover { background: #2563eb; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
 
-        .img-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .btn-add {
-            width: 100%;
-            padding: 12px;
-            background: #16a34a;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn-secondary {
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .product-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #1e293b;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .item-info { display: flex; align-items: center; gap: 12px; }
-        .item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .order-card {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-right: 4px solid #d97706;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .order-items-container {
+        .items-list {
+            margin-top: 15px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin: 10px 0;
+            gap: 10px;
         }
 
-        .order-item-row {
+        .item-row {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .order-item-img {
-            width: 55px;
-            height: 55px;
-            border-radius: 6px;
-            object-fit: cover;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .custom-field-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .btn-wa-direct {
-            background: #25d366;
-            color: white;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
+        .item-info { font-size: 14px; font-weight: 700; color: #f8fafc; }
+        .item-sub { font-size: 12px; color: #94a3b8; margin-top: 3px; }
     </style>
 
     <script type="module">
@@ -196,428 +120,259 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let compressedImageBase64 = "";
-
-        // معالجة رفع وتصغير الصورة
-        window.handleImageUpload = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    const scaleFactor = MAX_WIDTH / img.width;
-                    
-                    canvas.width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
-                    canvas.height = (img.width > MAX_WIDTH) ? img.height * scaleFactor : img.height;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
-
-                    const preview = document.getElementById('previewImg');
-                    preview.src = compressedImageBase64;
-                    preview.style.display = 'block';
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // إضافة خانات مخصصة ديناميكياً للمنتج
-        window.addCustomField = function() {
-            const container = document.getElementById('customFieldsContainer');
-            const fieldId = Date.now();
-            const div = document.createElement('div');
-            div.className = 'custom-field-row';
-            div.id = `field-${fieldId}`;
-            div.innerHTML = `
-                <input type="text" placeholder="اسم الخانة (مثال: خامة القماش)" class="cf-name">
-                <input type="text" placeholder="القيمة/الوصف (مثال: قطن 100%)" class="cf-value">
-                <button type="button" class="btn-delete" onclick="document.getElementById('field-${fieldId}').remove()">X</button>
-            `;
-            container.appendChild(div);
-        };
-
-        // إضافة عرض جديد
-        window.addProduct = async function() {
-            const name = document.getElementById('pName').value.trim();
-            const price = document.getElementById('pPrice').value.trim();
-            const area = document.getElementById('pArea').value;
-            const sizes = document.getElementById('pSizes').value.trim();
-            const colors = document.getElementById('pColors').value.trim();
-
-            if (!name || !price || !compressedImageBase64) {
-                alert('يرجى اختيار صورة واختيار اسم وسعر للمنتج.');
-                return;
-            }
-
-            // جمع الخانات المخصصة
-            const customFields = [];
-            document.querySelectorAll('.custom-field-row').forEach(row => {
-                const cfName = row.querySelector('.cf-name').value.trim();
-                const cfValue = row.querySelector('.cf-value').value.trim();
-                if (cfName && cfValue) {
-                    customFields.push({ name: cfName, value: cfValue });
-                }
-            });
-
-            try {
-                await addDoc(collection(db, "products"), {
-                    name,
-                    price,
-                    img: compressedImageBase64,
-                    area,
-                    sizes: sizes || "حسب المتاح",
-                    colors: colors || "جميع الألوان متوفرة",
-                    customFields
-                });
-                alert('تم إضافة العرض بنجاح!');
-                
-                // إعادة ضبط الاستمارة
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pSizes').value = '';
-                document.getElementById('pColors').value = '';
-                document.getElementById('customFieldsContainer').innerHTML = '';
-                document.getElementById('fileInput').value = '';
-                document.getElementById('previewImg').style.display = 'none';
-                compressedImageBase64 = "";
-
-                loadAdminProducts();
-            } catch (e) {
-                alert('حدث خطأ أثناء الإضافة.');
-            }
-        };
-
-        // إدارة خيارات التوصيل (مرتبطة بالمدينة)
-        window.addDeliveryOption = async function() {
-            const city = document.getElementById('delCity').value;
+        // --- إدارة خيارات التوصيل ---
+        window.saveDeliveryOption = async function() {
             const name = document.getElementById('delName').value.trim();
             const price = document.getElementById('delPrice').value.trim();
+            const city = document.getElementById('delCity').value.trim();
 
-            if (!name) {
-                alert('يرجى إدخال اسم خيار التوصيل (مثال: الحي الشمالي)');
+            if (!name || !price || !city) {
+                alert('يرجى إدخال اسم وسيلة التوصيل، السعر، وتحديد المدينة التابعة لها.');
                 return;
             }
 
             try {
                 await addDoc(collection(db, "delivery_options"), {
-                    city,
                     name,
-                    price: Number(price) || 0
+                    price: Number(price),
+                    city
                 });
+                alert('تم إضافة خيار التوصيل بنجاح!');
                 document.getElementById('delName').value = '';
                 document.getElementById('delPrice').value = '';
                 loadDeliveryOptions();
-            } catch(e) {
-                alert('خطأ أثناء إضافة خيار التوصيل');
+            } catch (e) {
+                alert('حدث خطأ أثناء الحفظ.');
             }
         };
 
         async function loadDeliveryOptions() {
-            const list = document.getElementById('deliveryList');
-            list.innerHTML = "جاري التحميل...";
+            const listContainer = document.getElementById('deliveryList');
+            listContainer.innerHTML = 'جاري التحميل...';
             try {
-                const snap = await getDocs(collection(db, "delivery_options"));
-                list.innerHTML = "";
-                if (snap.empty) {
-                    list.innerHTML = "<p style='color:#cbd5e1; font-size:13px;'>لا توجد خيارات توصيل مضافة حالياً.</p>";
+                const querySnapshot = await getDocs(collection(db, "delivery_options"));
+                listContainer.innerHTML = '';
+                if(querySnapshot.empty) {
+                    listContainer.innerHTML = '<div class="item-sub">لا توجد خيارات توصيل مسجلة حالياً.</div>';
                     return;
                 }
-                snap.forEach(docSnap => {
-                    const d = docSnap.data();
-                    list.innerHTML += `
-                        <div class="product-list-item">
+                querySnapshot.forEach((documentSnap) => {
+                    const data = documentSnap.data();
+                    listContainer.innerHTML += `
+                        <div class="item-row">
                             <div>
-                                <span style="background:#0284c7; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px;">📍 ${d.city}</span>
-                                <strong>🚚 ${d.name}</strong> 
-                                <span style="color:#fbbf24; font-size:13px; margin-right:10px;">(${d.price} ج.س)</span>
+                                <div class="item-info">🚚 ${data.name} - السعر: ${data.price} ج.س</div>
+                                <div class="item-sub">📍 المدينة/المنطقة: ${data.city}</div>
                             </div>
-                            <button class="btn-delete" onclick="deleteDeliveryOption('${docSnap.id}')">حذف</button>
-                        </div>
-                    `;
-                });
-            } catch(e) {
-                list.innerHTML = "خطأ في تحميل خدمات التوصيل";
-            }
-        }
-
-        window.deleteDeliveryOption = async function(id) {
-            if (confirm('هل تريد حذف خيار التوصيل هذا؟')) {
-                await deleteDoc(doc(db, "delivery_options", id));
-                loadDeliveryOptions();
-            }
-        };
-
-        // تحميل العروض القائمة
-        async function loadAdminProducts() {
-            const list = document.getElementById('adminProductsList');
-            list.innerHTML = "جاري التحميل...";
-            try {
-                const querySnapshot = await getDocs(collection(db, "products"));
-                list.innerHTML = "";
-                querySnapshot.forEach(docSnap => {
-                    const p = docSnap.data();
-                    
-                    let customStr = '';
-                    if (p.customFields && p.customFields.length > 0) {
-                        customStr = p.customFields.map(cf => `${cf.name}: ${cf.value}`).join(' | ');
-                    }
-
-                    list.innerHTML += `
-                        <div class="product-list-item">
-                            <div class="item-info">
-                                <img src="${p.img}" class="item-img" onclick="openPreview('${p.img}')">
-                                <div>
-                                    <div style="font-weight: bold;">${p.name}</div>
-                                    <div style="color: #fbbf24; font-size: 13px;">${p.price} ج.س | 📍 ${p.area || 'غير محدد'}</div>
-                                    <div style="color: #cbd5e1; font-size: 12px;">المقاسات: ${p.sizes || 'غير محددة'} | الألوان: ${p.colors || 'غير محددة'}</div>
-                                    ${customStr ? `<div style="color:#94a3b8; font-size:11px;">📌 ${customStr}</div>` : ''}
-                                </div>
-                            </div>
-                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">حذف</button>
+                            <button class="btn btn-danger" onclick="deleteDelivery('${documentSnap.id}')">حذف</button>
                         </div>
                     `;
                 });
             } catch (e) {
-                list.innerHTML = "خطأ في تحميل المنتجات";
+                listContainer.innerHTML = 'خطأ في جلب خيارات التوصيل';
             }
         }
 
-        // تحميل الطلبات الواردة (الطلبات المعلقة)
-        async function loadAdminOrders() {
-            const list = document.getElementById('adminOrdersList');
-            list.innerHTML = "جاري تحميل الطلبات المعلقة...";
-            try {
-                const querySnapshot = await getDocs(collection(db, "orders"));
-                if (querySnapshot.empty) {
-                    list.innerHTML = "<p style='color: #cbd5e1; text-align: center; padding: 10px;'>لا توجد طلبات معلقة مسجلة حالياً.</p>";
-                    return;
-                }
-
-                list.innerHTML = "";
-                querySnapshot.forEach(docSnap => {
-                    const ord = docSnap.data();
-                    let itemsHtml = "";
-                    if (ord.items && ord.items.length) {
-                        ord.items.forEach((item) => {
-                            const imgTag = item.img ? `<img src="${item.img}" class="order-item-img" onclick="openPreview('${item.img}')" title="اضغط للتكبير">` : '';
-                            
-                            let customAnswersText = '';
-                            if (item.customAnswers) {
-                                for (const [k, v] of Object.entries(item.customAnswers)) {
-                                    if(v) customAnswersText += ` | ${k}: ${v}`;
-                                }
-                            }
-
-                            itemsHtml += `
-                                <div class="order-item-row">
-                                    ${imgTag}
-                                    <div style="font-size:13px;">
-                                        <div style="font-weight:bold; color:#f8fafc;">${item.name}</div>
-                                        <div style="color:#cbd5e1;">
-                                            المقاس: <strong style="color:#fbbf24;">${item.size || 'غير محدد'}</strong> | 
-                                            اللون: <strong style="color:#fbbf24;">${item.color || 'غير محدد'}</strong>
-                                            ${customAnswersText ? `<span style="color:#38bdf8;">${customAnswersText}</span>` : ''}
-                                            | السعر: ${item.price} ج.س
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    }
-
-                    // تنظيف وتجهيز رقم الهاتف للواتساب
-                    let cleanPhone = (ord.customerPhone || '').replace(/[^0-9]/g, '');
-                    if (cleanPhone.startsWith('0')) {
-                        cleanPhone = '249' + cleanPhone.substring(1);
-                    }
-
-                    list.innerHTML += `
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div>
-                                    <strong style="color:#fbbf24; font-size:16px;">👤 ${ord.customerName}</strong>
-                                    <span style="font-size:11px; color:#cbd5e1; display:block;">🕒 ${ord.date || ''}</span>
-                                </div>
-                                <div style="display:flex; gap:8px;">
-                                    <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa-direct">
-                                        💬 مراسلة الزبون
-                                    </a>
-                                    <button class="btn-delete" onclick="deleteOrder('${docSnap.id}')">إنهاء/حذف</button>
-                                </div>
-                            </div>
-                            <div style="font-size:13px; color:#cbd5e1; margin-bottom:5px;">
-                                📞 <strong>الهاتف:</strong> ${ord.customerPhone} ${ord.customerPhone2 && ord.customerPhone2 !== 'لا يوجد' ? ' | 📱 احتياطي: ' + ord.customerPhone2 : ''}
-                            </div>
-                            <div style="font-size:13px; color:#cbd5e1; margin-bottom:5px;">
-                                📍 <strong>العنوان:</strong> ${ord.customerAddress}
-                            </div>
-                            <div style="font-size:13px; color:#38bdf8; margin-bottom:5px;">
-                                🚚 <strong>خدمة التوصيل:</strong> ${ord.deliveryService || 'بدون توصيل'}
-                            </div>
-                            
-                            <div style="margin-top:10px; font-weight:bold; color:#fbbf24; font-size:13px;">العروض المطلوبة والتفاصيل:</div>
-                            <div class="order-items-container">
-                                ${itemsHtml}
-                            </div>
-
-                            <div style="font-size:13px; color:#e2e8f0; margin-top:5px;">
-                                📝 <strong>الملاحظات:</strong> ${ord.customerNotes || 'لا توجد'}
-                            </div>
-                            <div style="text-align:left; font-weight:800; color:#22c55e; font-size:16px; margin-top:8px;">
-                                المبلغ الإجمالي الكلي: ${ord.totalAmount || ord.itemsTotal} ج.س
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (e) {
-                list.innerHTML = "خطأ في تحميل الطلبات";
-            }
-        }
-
-        window.deleteProduct = async function(id) {
-            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+        window.deleteDelivery = async function(id) {
+            if (confirm('هل أنت متأكد من حذف خيار التوصيل هذا؟')) {
                 try {
-                    await deleteDoc(doc(db, "products", id));
-                    loadAdminProducts();
-                } catch (e) {
+                    await deleteDoc(doc(db, "delivery_options", id));
+                    loadDeliveryOptions();
+                } catch(e) {
                     alert('خطأ في الحذف');
                 }
             }
         };
 
-        window.deleteOrder = async function(id) {
-            if (confirm('هل أنت متأكد من حذف/إنهاء هذا الطلب؟')) {
+
+        // --- إدارة المنتجات والعروض ---
+        let customFieldsList = [];
+
+        window.addCustomFieldInput = function() {
+            const name = document.getElementById('cfName').value.trim();
+            const value = document.getElementById('cfValue').value.trim();
+            if(!name || !value) {
+                alert('أدخل اسم الحقل والقيمة');
+                return;
+            }
+            customFieldsList.push({ name, value });
+            renderCustomFieldsPreview();
+            document.getElementById('cfName').value = '';
+            document.getElementById('cfValue').value = '';
+        };
+
+        function renderCustomFieldsPreview() {
+            const container = document.getElementById('customFieldsPreview');
+            container.innerHTML = '';
+            customFieldsList.forEach((cf, idx) => {
+                container.innerHTML += `<span style="background:#334155; padding:4px 8px; border-radius:6px; font-size:12px; display:inline-block; margin:3px;">${cf.name}: ${cf.value} <button onclick="customFieldsList.splice(${idx},1); renderCustomFieldsPreview();" style="background:none; border:none; color:#f87171; cursor:pointer;">×</button></span>`;
+            });
+        }
+
+        window.saveProduct = async function() {
+            const name = document.getElementById('pName').value.trim();
+            const price = document.getElementById('pPrice').value.trim();
+            const img = document.getElementById('pImg').value.trim();
+            const area = document.getElementById('pArea').value;
+            const sizes = document.getElementById('pSizes').value.trim();
+            const colors = document.getElementById('pColors').value.trim();
+
+            if (!name || !price || !img) {
+                alert('يرجى ملء الحقول الأساسية (الاسم، السعر، ورابط الصورة).');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    name,
+                    price: Number(price),
+                    img,
+                    area,
+                    sizes: sizes || 'حسب المتاح',
+                    colors: colors || 'جميع الألوان متوفرة',
+                    customFields: customFieldsList
+                });
+                alert('تم إضافة العرض بنجاح!');
+                document.getElementById('pName').value = '';
+                document.getElementById('pPrice').value = '';
+                document.getElementById('pImg').value = '';
+                document.getElementById('pSizes').value = '';
+                document.getElementById('pColors').value = '';
+                customFieldsList = [];
+                renderCustomFieldsPreview();
+                loadProducts();
+            } catch(e) {
+                alert('حدث خطأ أثناء حفظ المنتج');
+            }
+        };
+
+        async function loadProducts() {
+            const listContainer = document.getElementById('productsList');
+            listContainer.innerHTML = 'جاري التحميل...';
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                listContainer.innerHTML = '';
+                if(querySnapshot.empty) {
+                    listContainer.innerHTML = '<div class="item-sub">لا توجد عروض مسجلة حالياً.</div>';
+                    return;
+                }
+                querySnapshot.forEach((documentSnap) => {
+                    const data = documentSnap.data();
+                    listContainer.innerHTML += `
+                        <div class="item-row">
+                            <div>
+                                <div class="item-info">🛍️ ${data.name} - السعر: ${data.price} ج.س</div>
+                                <div class="item-sub">📍 المنطقة: ${data.area || 'عطبرة'} | المقاسات: ${data.sizes || 'حسب المتاح'}</div>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteProduct('${documentSnap.id}')">حذف</button>
+                        </div>
+                    `;
+                });
+            } catch(e) {
+                listContainer.innerHTML = 'خطأ في جلب المنتجات';
+            }
+        }
+
+        window.deleteProduct = async function(id) {
+            if(confirm('هل أنت متأكد من حذف هذا العرض؟')) {
                 try {
-                    await deleteDoc(doc(db, "orders", id));
-                    loadAdminOrders();
-                } catch (e) {
-                    alert('خطأ في حذف الطلب');
+                    await deleteDoc(doc(db, "products", id));
+                    loadProducts();
+                } catch(e) {
+                    alert('خطأ في الحذف');
                 }
             }
         };
 
-        window.openPreview = function(imgSrc) {
-            document.getElementById('previewModalImg').src = imgSrc;
-            document.getElementById('previewModal').style.display = 'flex';
-        };
-
-        window.closePreview = function() {
-            document.getElementById('previewModal').style.display = 'none';
-        };
-
-        window.onload = function() {
-            loadAdminProducts();
-            loadAdminOrders();
+        window.onload = () => {
             loadDeliveryOptions();
+            loadProducts();
         };
     </script>
 </head>
 <body>
 
     <div class="container">
-        <h1>⚙ لوحة إدارة Mohamed Store</h1>
-
-        <!-- قسم خيارات التوصيل المرتبطة بالمدن -->
-        <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">🚚 إدارة خيارات التوصيل لكل مدينة</h2>
-            
-            <div class="form-group">
-                <label>اختر المدينة:</label>
-                <select id="delCity">
-                    <option value="عطبرة">عطبرة</option>
-                    <option value="أمدرمان">أمدرمان</option>
-                    <option value="بورتسودان">بورتسودان</option>
-                </select>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="delName" placeholder="خيار التوصيل (مثال: السوق / الحي الشمالي)">
-                <input type="number" id="delPrice" placeholder="السعر (ج.س)">
-            </div>
-            
-            <button class="btn-secondary" style="width:100%; margin-bottom:15px;" onclick="addDeliveryOption()">+ إضافة خيار توصيل لهذه المدينة</button>
-            
-            <div id="deliveryList">جاري التحميل...</div>
+        <div class="header">
+            <h1>لوحة تحكم المتجر - Admin Panel</h1>
+            <a href="index.html" class="btn" style="text-decoration:none; font-size:13px;" target="_blank">عرض المتجر 🌐</a>
         </div>
 
-        <!-- قسم إضافة عرض جديد -->
-        <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">إضافة عرض جديد</h2>
-            
-            <div class="form-group">
-                <label>اسم المنتج *</label>
-                <input type="text" id="pName" placeholder="مثال: بجامة رجالية">
-            </div>
-
-            <div class="form-group">
-                <label>السعر (بالجنيه السوداني) *</label>
-                <input type="number" id="pPrice" placeholder="مثال: 1200">
-            </div>
-
-            <div class="form-group">
-                <label>المنطقة المتاحة *</label>
-                <select id="pArea">
-                    <option value="عطبرة">عطبرة</option>
-                    <option value="أمدرمان">أمدرمان</option>
-                    <option value="بورتسودان">بورتسودان</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>المقاسات المتوفرة</label>
-                <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو 40, 41, 42">
-            </div>
-
-            <div class="form-group">
-                <label>الألوان المتوفرة 🎨</label>
-                <input type="text" id="pColors" placeholder="مثال: أسود، أزرق، أبيض">
-            </div>
-
-            <!-- الخانات والمواصفات المخصصة -->
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="margin: 0;">خانات مخصصة إضافية (اختياري):</label>
-                    <button type="button" class="btn-secondary" onclick="addCustomField()">+ إضافة خانة اختيارية</button>
+        <!-- قسم إدارة خيارات التوصيل (محدث ليرتبط بالمدينة) -->
+        <div class="section-box">
+            <div class="section-title">🚚 إدارة خيارات التوصيل حسب المدينة</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>المدينة / المنطقة التابعة *</label>
+                    <select id="delCity">
+                        <option value="عطبرة">عطبرة</option>
+                        <option value="أمدرمان">أمدرمان</option>
+                        <option value="بورتسودان">بورتسودان</option>
+                    </select>
                 </div>
-                <div id="customFieldsContainer"></div>
+                <div class="form-group">
+                    <label>اسم وسيلة التوصيل *</label>
+                    <input type="text" id="delName" placeholder="مثال: توصيل منزلي سريع / شحن محلي">
+                </div>
+                <div class="form-group">
+                    <label>سعر التوصيل (بالجنيه) *</label>
+                    <input type="number" id="delPrice" placeholder="مثال: 3000">
+                </div>
+            </div>
+            <button class="btn" onclick="saveDeliveryOption()">حفظ وإضافة خيار التوصيل</button>
+            
+            <div class="items-list" id="deliveryList"></div>
+        </div>
+
+        <!-- قسم إضافة عرض/منتج جديد -->
+        <div class="section-box">
+            <div class="section-title">📦 إضافة عرض أو منتج جديد</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم العرض/المنتج *</label>
+                    <input type="text" id="pName" placeholder="مثال: تيشيرت رياضي">
+                </div>
+                <div class="form-group">
+                    <label>السعر (ج.س) *</label>
+                    <input type="number" id="pPrice" placeholder="مثال: 15000">
+                </div>
+                <div class="form-group">
+                    <label>رابط الصورة *</label>
+                    <input type="text" id="pImg" placeholder="رابط مباشر للصورة">
+                </div>
+                <div class="form-group">
+                    <label>المنطقة / المدينة *</label>
+                    <select id="pArea">
+                        <option value="عطبرة">عطبرة</option>
+                        <option value="أمدرمان">أمدرمان</option>
+                        بورتسودان<option value="بورتسودان">بورتسودان</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>المقاسات المتاحة</label>
+                    <input type="text" id="pSizes" placeholder="مثال: S, M, L, XL أو مقاسات حذاء">
+                </div>
+                <div class="form-group">
+                    <label>الألوان المتاحة</label>
+                    <input type="text" id="pColors" placeholder="مثال: أسود، أبيض، أزرق">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>صورة المنتج *</label>
-                <label for="fileInput" class="file-upload-btn">📷 اختيار صورة من المعرض</label>
-                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                <img id="previewImg" class="img-preview" alt="معاينة الصورة">
+            <div style="background: rgba(15,23,42,0.5); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                <label style="font-size: 13px; font-weight: bold; color: #cbd5e1; display: block; margin-bottom: 5px;">إضافة حقول مخصصة للعرض (اختياري)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="cfName" placeholder="اسم الحقل (مثل: المادة المنفذة)" style="padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; flex:1;">
+                    <input type="text" id="cfValue" placeholder="القيمة (مثل: قطن خالص)" style="padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; flex:1;">
+                    <button class="btn" onclick="addCustomFieldInput()" style="padding: 6px 15px;">إضافة حقل</button>
+                </div>
+                <div id="customFieldsPreview" style="margin-top: 8px;"></div>
             </div>
 
-            <button class="btn-add" onclick="addProduct()">إضافة العرض الآن</button>
-        </div>
+            <button class="btn" onclick="saveProduct()">حفظ ونشر العرض</button>
 
-        <!-- قسم عرض الطلبات المعلقة/الواردة -->
-        <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #22c55e;">📋 الطلبات المعلقة (الواردة من الزبائن)</h2>
-            <div id="adminOrdersList">جاري التحميل...</div>
-        </div>
-
-        <!-- قسم العروض الحالية -->
-        <div class="card">
-            <h2 style="font-size: 18px; margin-bottom: 15px; color: #38bdf8;">المنتجات والعروض الحالية</h2>
-            <div id="adminProductsList">جاري التحميل...</div>
-        </div>
-    </div>
-
-    <div class="modal" id="previewModal" onclick="closePreview()">
-        <div style="text-align: center; padding: 20px;">
-            <img id="previewModalImg" src="" style="max-width: 90vw; max-height: 80vh; border-radius: 12px; border: 2px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+            <div class="items-list" id="productsList" style="margin-top: 20px;"></div>
         </div>
     </div>
 
 </body>
 </html>
- 
