@@ -247,7 +247,7 @@
                 await addDoc(collection(db, "products"), {
                     name,
                     price: Number(price),
-                    img: selectedImageBase64, // حفظ الصورة المحولة مباشرة
+                    img: selectedImageBase64,
                     area,
                     sizes: sizes || 'حسب المتاح',
                     colors: colors || 'جميع الألوان متوفرة',
@@ -401,4 +401,3 @@
 
 </body>
 </html>
- 
