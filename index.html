@@ -85,6 +85,8 @@
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .tab-btn.active, .tab-btn:hover {
@@ -369,13 +371,19 @@
 
             allProducts.forEach(p => { if (p.area) existingAreas.add(p.area); });
 
-            let html = `<button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>`;
+            let html = `<button class="tab-btn active" onclick="openWhatsAppForShipments()">الارساليات</button>`;
             existingAreas.forEach(area => {
                 html += `<button class="tab-btn" onclick="filterArea('${area}', this)">${area}</button>`;
             });
 
             tabsContainer.innerHTML = html;
         }
+
+        window.openWhatsAppForShipments = function() {
+            const myNum = "249901358927";
+            const msg = encodeURIComponent("مرحباً، أود الاستفسار والطلب بالنسبة للارساليات 📦");
+            window.open(`https://wa.me/${myNum}?text=${msg}`, '_blank');
+        };
 
         window.filterArea = function(area, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -716,7 +724,7 @@
     </div>
 
     <div class="tabs-container" id="tabsContainer">
-        <button class="tab-btn active" onclick="filterArea('all', this)">كل المناطق</button>
+        <button class="tab-btn active" onclick="openWhatsAppForShipments()">الارساليات</button>
         <button class="tab-btn" onclick="filterArea('عطبرة', this)">عطبرة</button>
         <button class="tab-btn" onclick="filterArea('أمدرمان', this)">أمدرمان</button>
         <button class="tab-btn" onclick="filterArea('بورتسودان', this)">بورتسودان</button>
