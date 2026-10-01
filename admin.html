@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohamed Store - لوحة التحكم حسب المدن</title>
+    <title>Mohamed Store - لوحة التحكم المركزية</title>
     <link rel="icon" href="IMG-20260925-WA0048.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
@@ -14,35 +14,92 @@
             color: #f8fafc; 
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: -1;
         }
 
-        .admin-header {
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .header-box {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             padding: 20px;
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
-        .admin-title { font-size: 20px; font-weight: 800; color: #fbbf24; }
+        .title { font-size: 22px; font-weight: 800; color: #fbbf24; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #cbd5e1; }
 
-        .branch-filter-box {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 15px 20px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            margin-bottom: 20px;
+        /* شاشة اختيار المدينة */
+        #citySelectorView {
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-items: center;
+            max-width: 450px;
+            margin: 50px auto;
         }
 
-        .section-box {
+        .city-btn {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .city-btn:hover {
+            background: #d97706;
+            border-color: #d97706;
+            transform: translateY(-2px);
+        }
+
+        /* لوحة تحكم المدينة */
+        #cityAdminView { display: none; }
+
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: rgba(30, 41, 59, 0.85);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .admin-section {
+            display: none;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             padding: 20px;
@@ -51,11 +108,23 @@
             margin-bottom: 25px;
         }
 
-        .section-title { font-size: 16px; font-weight: 700; color: #38bdf8; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .admin-section.active { display: block; }
 
-        .form-group { margin-bottom: 12px; }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: #cbd5e1; }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             border: 1.5px solid rgba(255,255,255,0.2);
@@ -64,17 +133,42 @@
             color: #fff;
             font-size: 14px;
         }
+        textarea { resize: vertical; min-height: 60px; }
 
         .btn-primary {
             background: #d97706;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px;
             border-radius: 10px;
             font-weight: 800;
             cursor: pointer;
             width: 100%;
             font-size: 15px;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: #b45309; }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         .order-card {
@@ -95,30 +189,30 @@
         }
 
         .order-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
-        .order-items-list {
-            margin-top: 8px;
+        .unit-detail-box {
             background: rgba(15, 23, 42, 0.7);
             padding: 8px;
-            border-radius: 8px;
+            border-radius: 6px;
+            margin-top: 5px;
+            border-right: 3px solid #38bdf8;
             font-size: 12px;
         }
 
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 10px;
+        .delivery-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -132,96 +226,45 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let allOrders = [];
+        let currentActiveCity = '';
 
-        async function loadAdminData() {
-            const container = document.getElementById('ordersContainer');
-            container.innerHTML = "<p style='text-align:center;'>جاري تحميل الطلبات...</p>";
-            try {
-                const snap = await getDocs(collection(db, "orders"));
-                allOrders = [];
-                snap.forEach(documentSnap => {
-                    allOrders.push({ id: documentSnap.id, ...documentSnap.data() });
-                });
-                filterOrdersByBranch();
-            } catch (e) {
-                container.innerHTML = "<p style='text-align:center; color:#ef4444;'>خطأ في جلب الطلبات.</p>";
-            }
+        window.selectCityAdmin = function(cityName) {
+            currentActiveCity = cityName;
+            document.getElementById('citySelectorView').style.display = 'none';
+            document.getElementById('cityAdminView').style.display = 'block';
+            document.getElementById('currentCityTitle').innerText = `لوحة تحكم فرع: ${cityName}`;
+            loadCityData();
+        };
+
+        window.backToCitySelector = function() {
+            currentActiveCity = '';
+            document.getElementById('cityAdminView').style.display = 'none';
+            document.getElementById('citySelectorView').style.display = 'block';
+        };
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        };
+
+        async function loadCityData() {
+            await loadCityProducts();
+            await loadCityOrders();
+            await loadCityDelivery();
         }
 
-        window.filterOrdersByBranch = function() {
-            const selectedBranch = document.getElementById('adminBranchFilter').value;
-            const container = document.getElementById('ordersContainer');
-            
-            // تصفية الطلبات بناءً على الفرع أو المدينة (نبحث في اسم الخدمة أو المنتجات أو العنوان)
-            const filtered = allOrders.filter(o => {
-                if (o.items && o.items.some(i => i.name && i.name.includes(selectedBranch))) return true;
-                if (o.deliveryService && o.deliveryService.includes(selectedBranch)) return true;
-                if (o.customerAddress && o.customerAddress.includes(selectedBranch)) return true;
-                return false;
-            });
-
-            // لو ما في تحديد دقيق، اعرض الطلبات اللي فيها تطابق أو اعرض الكل للفرع لو مخزن بطريقة افتراضية
-            const displayList = filtered.length > 0 ? filtered : allOrders; // عرض الكل لو لم تطابق تصفية نصية دقيقة
-
-            if (displayList.length === 0) {
-                container.innerHTML = `<p style='text-align:center; color:#cbd5e1;'>لا توجد طلبات مسجلة لفرع (${selectedBranch}) حالياً.</p>`;
-                return;
-            }
-
-            container.innerHTML = "";
-            displayList.forEach(order => {
-                let itemsHtml = "";
-                if (order.items && Array.isArray(order.items)) {
-                    order.items.forEach((item) => {
-                        itemsHtml += `<div>• ${item.name} | السعر: ${item.price} ج.س | مقاس: ${item.size} | لون: ${item.color}</div>`;
-                    });
-                }
-
-                container.innerHTML += `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <span>العميل: ${order.customerName || 'بدون اسم'}</span>
-                            <span style="color: #22c55e;">الإجمالي: ${order.totalAmount || 0} ج.س</span>
-                        </div>
-                        <div class="order-details">
-                            <strong>الهاتف:</strong> ${order.customerPhone || ''} ${order.customerPhone2 ? ' / ' + order.customerPhone2 : ''}<br>
-                            <strong>العنوان:</strong> ${order.customerAddress || ''}<br>
-                            <strong>التوصيل:</strong> ${order.deliveryService || 'بدون توصيل'}<br>
-                            <strong>ملاحظات:</strong> ${order.customerNotes || 'لا توجد'}<br>
-                            <strong>تاريخ الطلب:</strong> ${order.date || 'غير محدد'}<br>
-                            <div class="order-items-list">
-                                <strong>المنتجات المطلوبة:</strong><br>
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                        <button class="btn-danger" onclick="deleteOrder('${order.id}')">حذف الطلب</button>
-                    </div>
-                `;
-            });
-        };
-
-        window.deleteOrder = async function(orderId) {
-            if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
-                try {
-                    await deleteDoc(doc(db, "orders", orderId));
-                    alert('تم حذف الطلب بنجاح.');
-                    loadAdminData();
-                } catch(e) {
-                    alert('حدث خطأ أثناء الحذف.');
-                }
-            }
-        };
-
+        // --- 1. إدارة العروض والمنتجات ---
         window.addNewProduct = async function() {
             const name = document.getElementById('prodName').value.trim();
             const price = document.getElementById('prodPrice').value.trim();
-            const area = document.getElementById('prodArea').value;
             const category = document.getElementById('prodCategory').value.trim() || 'عام';
             const img = document.getElementById('prodImg').value.trim();
             const sizes = document.getElementById('prodSizes').value.trim();
             const colors = document.getElementById('prodColors').value.trim();
             const stock = document.getElementById('prodStock').value;
+            const adminNote = document.getElementById('prodAdminNote').value.trim();
 
             if (!name || !price || !img) {
                 alert('الرجاء إدخال اسم المنتج، السعر، ورابط الصورة على الأقل.');
@@ -230,75 +273,281 @@
 
             try {
                 await addDoc(collection(db, "products"), {
-                    name, price, area, category, img, sizes, colors, stock,
+                    name, price, area: currentActiveCity, category, img, sizes, colors, stock, adminNote,
                     customFields: []
                 });
-                alert(`تم إضافة المنتج بنجاح إلى فرع (${area})!`);
+                alert('تم رفع المنتج بنجاح في المتجر!');
                 document.getElementById('prodName').value = '';
                 document.getElementById('prodPrice').value = '';
                 document.getElementById('prodImg').value = '';
                 document.getElementById('prodSizes').value = '';
                 document.getElementById('prodColors').value = '';
+                document.getElementById('prodAdminNote').value = '';
+                loadCityProducts();
             } catch(e) {
-                alert('حدث خطأ أثناء إضافة المنتج.');
+                alert('حدث خطأ أثناء رفع المنتج.');
             }
         };
 
-        window.onload = loadAdminData;
+        async function loadCityProducts() {
+            const container = document.getElementById('cityProductsList');
+            container.innerHTML = "<p style='text-align:center;'>جاري تحميل العروض...</p>";
+            try {
+                const snap = await getDocs(collection(db, "products"));
+                container.innerHTML = "";
+                let count = 0;
+                snap.forEach(documentSnap => {
+                    const p = documentSnap.data();
+                    if (p.area === currentActiveCity) {
+                        count++;
+                        container.innerHTML += `
+                            <div class="order-card" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <strong>${p.name}</strong> - ${p.price} ج.س (${p.stock})<br>
+                                    <span style="font-size:12px; color:#cbd5e1;">ملاحظة: ${p.adminNote || 'لا توجد'}</span>
+                                </div>
+                                <button class="btn-danger" onclick="deleteProduct('${documentSnap.id}')">حذف</button>
+                            </div>
+                        `;
+                    }
+                });
+                if (count === 0) container.innerHTML = "<p style='text-align:center; color:#cbd5e1;'>لا توجد عروض مرفوعة لهذا الفرع.</p>";
+            } catch(e) {
+                container.innerHTML = "<p style='text-align:center; color:#ef4444;'>خطأ في التحميل.</p>";
+            }
+        }
+
+        window.deleteProduct = async function(id) {
+            if (confirm('هل أنت متأكد من حذف هذا العرض؟')) {
+                await deleteDoc(doc(db, "products", id));
+                loadCityProducts();
+            }
+        };
+
+        window.clearMemoryCache = function() {
+            if (confirm('هل تريد تصفية الذاكرة المؤقتة وتحديث الصفحة؟')) {
+                location.reload();
+            }
+        };
+
+        // --- 2. إدارة الطلبات المعلقة ---
+        async function loadCityOrders() {
+            const container = document.getElementById('cityOrdersContainer');
+            container.innerHTML = "<p style='text-align:center;'>جاري تحميل الطلبات...</p>";
+            try {
+                const snap = await getDocs(collection(db, "orders"));
+                container.innerHTML = "";
+                let count = 0;
+                snap.forEach(documentSnap => {
+                    const order = documentSnap.data();
+                    const orderId = documentSnap.id;
+                    
+                    // تحقق أن الطلب يخص هذه المدينة
+                    const isForThisCity = (order.deliveryService && order.deliveryService.includes(currentActiveCity)) || 
+                                          (order.items && order.items.some(i => i.name && i.name.includes(currentActiveCity))) ||
+                                          (order.customerAddress && order.customerAddress.includes(currentActiveCity));
+
+                    // إذا لم تتطابق بدقة تامة لكن الإدارة تريد عرضها أو تصفيتها
+                    count++;
+                    let itemsHtml = "";
+                    if (order.items && Array.isArray(order.items)) {
+                        order.items.forEach((item, idx) => {
+                            itemsHtml += `
+                                <div class="unit-detail-box">
+                                    <strong>قطعة (${idx + 1}):</strong> ${item.name}<br>
+                                    مقاس: [${item.size || 'غير محدد'}] | لون: [${item.color || 'غير محدد'}] | السعر: ${item.price} ج.س
+                                </div>
+                            `;
+                        });
+                    }
+
+                    container.innerHTML += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span>العميل: ${order.customerName || 'بدون اسم'}</span>
+                                <span style="color: #22c55e;">الإجمالي: ${order.totalAmount || 0} ج.س</span>
+                            </div>
+                            <div class="order-details">
+                                <strong>الهاتف الأساسي:</strong> ${order.customerPhone || ''}<br>
+                                <strong>رقم احتياطي:</strong> ${order.customerPhone2 || 'لا يوجد'}<br>
+                                <strong>الموقع بالتحديد:</strong> ${order.customerAddress || ''}<br>
+                                <strong>خدمة التوصيل:</strong> ${order.deliveryService || 'بدون توصيل'}<br>
+                                <strong>ملاحظات العميل:</strong> ${order.customerNotes || 'لا توجد'}<br>
+                                <strong>تاريخ الطلب:</strong> ${order.date || 'غير محدد'}<br>
+                                <div style="margin-top: 10px;">
+                                    <strong>تفاصيل القطع المطلوبة:</strong>
+                                    ${itemsHtml}
+                                </div>
+                            </div>
+                            <div style="margin-top: 12px; display:flex; gap:10px;">
+                                <button class="btn-primary" style="padding:8px; font-size:13px;" onclick="confirmOrderDone('${orderId}')">تأكيد إتمام الطلبية</button>
+                                <button class="btn-danger" onclick="deleteOrder('${orderId}')">حذف</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (count === 0) container.innerHTML = "<p style='text-align:center; color:#cbd5e1;'>لا توجد طلبات معلقة لهذا الفرع.</p>";
+            } catch(e) {
+                container.innerHTML = "<p style='text-align:center; color:#ef4444;'>خطأ في جلب الطلبات.</p>";
+            }
+        }
+
+        window.confirmOrderDone = async function(orderId) {
+            alert('تم تأكيد إتمام الطلبية بنجاح!');
+            await deleteDoc(doc(db, "orders", orderId));
+            loadCityOrders();
+        };
+
+        window.clearAllOrders = async function() {
+            if (confirm('هل أنت متأكد من حذف وتصفية جميع الطلبات المعلقة؟')) {
+                const snap = await getDocs(collection(db, "orders"));
+                for (let d of snap.docs) {
+                    await deleteDoc(doc(db, "orders", d.id));
+                }
+                alert('تمت تصفية وحذف جميع الطلبات بنجاح.');
+                loadCityOrders();
+            }
+        };
+
+        // --- 3. إدارة خدمات التوصيل ---
+        window.addDeliveryArea = async function() {
+            const name = document.getElementById('delAreaName').value.trim();
+            const price = document.getElementById('delAreaPrice').value.trim();
+
+            if (!name || !price) {
+                alert('الرجاء إدخال اسم المنطقة وسعر التوصيل.');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "delivery_options"), {
+                    name, price: Number(price), area: currentActiveCity
+                });
+                alert('تمت إضافة منطقة التوصيل بنجاح!');
+                document.getElementById('delAreaName').value = '';
+                document.getElementById('delAreaPrice').value = '';
+                loadCityDelivery();
+            } catch(e) {
+                alert('حدث خطأ أثناء إضافة منطقة التوصيل.');
+            }
+        };
+
+        async function loadCityDelivery() {
+            const container = document.getElementById('cityDeliveryList');
+            container.innerHTML = "<p style='text-align:center;'>جاري التحميل...</p>";
+            try {
+                const snap = await getDocs(collection(db, "delivery_options"));
+                container.innerHTML = "";
+                let count = 0;
+                snap.forEach(documentSnap => {
+                    const opt = documentSnap.data();
+                    if (opt.area === currentActiveCity) {
+                        count++;
+                        container.innerHTML += `
+                            <div class="delivery-item-row">
+                                <div><strong>${opt.name}</strong> - <span style="color:#22c55e;">${opt.price} ج.س</span></div>
+                                <button class="btn-danger" onclick="deleteDelivery('${documentSnap.id}')">حذف</button>
+                            </div>
+                        `;
+                    }
+                });
+                if (count === 0) container.innerHTML = "<p style='text-align:center; color:#cbd5e1;'>لا توجد مناطق توصيل مضافة لهذا الفرع.</p>";
+            } catch(e) {
+                container.innerHTML = "<p style='text-align:center; color:#ef4444;'>خطأ في التحميل.</p>";
+            }
+        }
+
+        window.deleteDelivery = async function(id) {
+            if (confirm('هل تريد حذف منطقة التوصيل هذه؟')) {
+                await deleteDoc(doc(db, "delivery_options", id));
+                loadCityDelivery();
+            }
+        };
     </script>
 </head>
 <body>
 
-    <div class="admin-header">
-        <div class="admin-title">لوحة تحكم المدن - Mohamed Store</div>
-        <button style="background:#2563eb; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="loadAdminData()">تحديث البيانات</button>
-    </div>
-
-    <!-- فلتر اختيار المدينة للوحة التحكم -->
-    <div class="branch-filter-box">
-        <label style="min-width: 120px; margin-bottom: 0;">عرض طلبات مدينة:</label>
-        <select id="adminBranchFilter" onchange="filterOrdersByBranch()">
-            <option value="عطبرة">فرع عطبرة</option>
-            <option value="أمدرمان">فرع أمدرمان</option>
-            <option value="بورتسودان">فرع بورتسودان</option>
-        </select>
-    </div>
-
-    <div class="container" style="max-width: 800px; margin: 0 auto;">
+    <div class="container">
         
-        <!-- قسم إضافة منتج لمدينة معينة -->
-        <div class="section-box">
-            <div class="section-title">إضافة منتج جديد لمدينة / فرع محدد</div>
-            <div class="form-group"><label>اسم المنتج *</label><input type="text" id="prodName" placeholder="مثال: تيشيرت رياضي"></div>
-            <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="prodPrice" placeholder="مثال: 5000"></div>
-            <div class="form-group">
-                <label>المدينة / الفرع المستهدف *</label>
-                <select id="prodArea">
-                    <option value="عطبرة">عطبرة</option>
-                    <option value="أمدرمان">أمدرمان</option>
-                    <option value="بورتسودان">بورتسودان</option>
-                </select>
-            </div>
-            <div class="form-group"><label>التصنيف</label><input type="text" id="prodCategory" placeholder="مثال: ملابس، إلكترونيات"></div>
-            <div class="form-group"><label>رابط الصورة (Image URL) *</label><input type="text" id="prodImg" placeholder="رابط صورة المنتج أو اسم الملف"></div>
-            <div class="form-group"><label>المقاسات المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodSizes" placeholder="S, M, L, XL"></div>
-            <div class="form-group"><label>الألوان المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodColors" placeholder="أسود، أبيض، أحمر"></div>
-            <div class="form-group">
-                <label>حالة الكمية</label>
-                <select id="prodStock">
-                    <option value="متوفر">متوفر</option>
-                    <option value="محدود">كمية محدودة</option>
-                </select>
-            </div>
-            <button class="btn-primary" onclick="addNewProduct()">إضافة المنتج للفرع المحدد</button>
+        <div class="header-box">
+            <div class="title">Mohamed Store</div>
+            <div class="subtitle">لوحة التحكم المركزية للإدارة حسب المدن</div>
         </div>
 
-        <!-- قسم عرض طلبات الزبائن للفرع المحدد -->
-        <div class="section-box">
-            <div class="section-title">طلبات الزبائن الواردة للفرع المحدد</div>
-            <div id="ordersContainer">
-                <p style="text-align: center; color: #cbd5e1;">جاري التحميل...</p>
+        <!-- 1. شاشة اختيار المدينة -->
+        <div id="citySelectorView">
+            <div style="text-align: center; font-weight: 700; color: #fbbf24; margin-bottom: 10px; font-size: 16px;">اختر الفرع أو المدينة للإدارة:</div>
+            <button class="city-btn" onclick="selectCityAdmin('عطبرة')">فرع عطبرة</button>
+            <button class="city-btn" onclick="selectCityAdmin('أمدرمان')">فرع أمدرمان</button>
+            <button class="city-btn" onclick="selectCityAdmin('بورتسودان')">فرع بورتسودان</button>
+        </div>
+
+        <!-- 2. لوحة تحكم المدينة المكتملة بأقسامها الثلاثة -->
+        <div id="cityAdminView">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span id="currentCityTitle" style="font-weight: 800; color: #fbbf24; font-size: 18px;"></span>
+                <button class="btn-secondary" onclick="backToCitySelector()">رجوع لاختيار المدن</button>
             </div>
+
+            <!-- أزرار التنقل بين الأقسام الثلاثة -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('sectionUpload')">رفع العروض</button>
+                <button class="tab-btn" onclick="switchTab('sectionOrders')">الطلبات المعلقة</button>
+                <button class="tab-btn" onclick="switchTab('sectionDelivery')">خدمات التوصيل</button>
+            </div>
+
+            <!-- القسم الأول: رفع العروض -->
+            <div id="sectionUpload" class="admin-section active">
+                <div class="section-title">
+                    <span>رفع وتعديل العروض والمنتجات</span>
+                    <button class="btn-secondary" onclick="clearMemoryCache()">تصفية الذاكرة</button>
+                </div>
+                <div class="form-group"><label>اسم المنتج *</label><input type="text" id="prodName" placeholder="مثال: تيشيرت رياضي"></div>
+                <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="prodPrice" placeholder="مثال: 5000"></div>
+                <div class="form-group"><label>التصنيف</label><input type="text" id="prodCategory" placeholder="مثال: ملابس، إلكترونيات"></div>
+                <div class="form-group"><label>رابط الصورة (Image URL أو اسم الملف) *</label><input type="text" id="prodImg" placeholder="رابط الصورة"></div>
+                <div class="form-group"><label>المقاسات المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodSizes" placeholder="S, M, L, XL"></div>
+                <div class="form-group"><label>الألوان المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodColors" placeholder="أسود، أبيض، أحمر"></div>
+                <div class="form-group">
+                    <label>حالة الكمية</label>
+                    <select id="prodStock">
+                        <option value="متوفر">متوفر بكثرة</option>
+                        <option value="محدود">كمية محدودة</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>ملاحظة الأدمن الخاصة بالعرض</label><textarea id="prodAdminNote" placeholder="أي ملاحظة تظهر مع المنتج"></textarea></div>
+                <button class="btn-primary" onclick="addNewProduct()">إتمام رفع العرض للمتجر</button>
+
+                <div style="margin-top: 25px;">
+                    <div style="font-weight: 700; color: #fbbf24; margin-bottom: 10px;">العروض الحالية في الفرع:</div>
+                    <div id="cityProductsList"></div>
+                </div>
+            </div>
+
+            <!-- القسم الثاني: الطلبات المعلقة -->
+            <div id="sectionOrders" class="admin-section">
+                <div class="section-title">
+                    <span>طلبات الزبائن الواردة</span>
+                    <button class="btn-danger" onclick="clearAllOrders()">حذف وتصفية كافة الطلبات</button>
+                </div>
+                <div id="cityOrdersContainer">
+                    <p style="text-align: center; color: #cbd5e1;">جاري تحميل الطلبات...</p>
+                </div>
+            </div>
+
+            <!-- القسم الثالث: خدمات التوصيل -->
+            <div id="sectionDelivery" class="admin-section">
+                <div class="section-title">إدارة مناطق وأسعار التوصيل داخل المدينـة</div>
+                <div class="form-group"><label>اسم المنطقة / الحي *</label><input type="text" id="delAreaName" placeholder="مثال: حيشان، السوق العربي"></div>
+                <div class="form-group"><label>سعر التوصيل (ج.س) *</label><input type="number" id="delAreaPrice" placeholder="مثال: 1500"></div>
+                <button class="btn-primary" onclick="addDeliveryArea()">إضافة منطقة التوصيل</button>
+
+                <div style="margin-top: 25px;">
+                    <div style="font-weight: 700; color: #fbbf24; margin-bottom: 10px;">مناطق التوصيل المتاحة للفرع:</div>
+                    <div id="cityDeliveryList"></div>
+                </div>
+            </div>
+
         </div>
 
     </div>
