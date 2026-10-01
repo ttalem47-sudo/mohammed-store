@@ -420,7 +420,6 @@
             const existingAreas = new Set(defaultAreas);
 
             allProducts.forEach(p => { if (p.area) existingAreas.add(p.area); });
-            deliveryOptions.forEach(d => { if (d.area) existingAreas.add(d.area); });
 
             let html = `<button class="tab-btn" onclick="filterArea('ارساليات', this)">📦 ارساليات</button>`;
             existingAreas.forEach(area => {
@@ -627,13 +626,9 @@
                 `;
             });
 
-            // تصفية خيارات التوصيل بحسب المنطقة الحالية التي يختارها الزبون
             const deliverySelect = document.getElementById('custDelivery');
             deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل / استلام">اختر طريقة التوصيل المفضلة...</option>`;
-            
-            const filteredDeliveryOptions = deliveryOptions.filter(opt => !opt.area || opt.area === currentAreaFilter);
-
-            filteredDeliveryOptions.forEach(opt => {
+            deliveryOptions.forEach(opt => {
                 deliverySelect.innerHTML += `<option value="${opt.price}" data-name="${opt.name}">${opt.name} - (${opt.price} ج.س)</option>`;
             });
 
