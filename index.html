@@ -10,7 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background: url('IMG-20261001-WA0111.jpg') no-repeat center center fixed; 
+            background: url('IMG-20261001-WA0111.jpg') no-repeat center center fixed;[span_1](start_span)[span_1](end_span)
             background-size: cover;
             color: #f8fafc; 
             min-height: 100vh;
@@ -370,7 +370,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -531,51 +531,11 @@
                             <button class="btn-add-cart ${isInCart ? 'added' : ''}" onclick="handleCartClick('${p.id}')">
                                 ${isInCart ? 'تم الاختيار' + qtyText : 'إضافة للطلب'}
                             </button>
-                            <button style="width:100%; background:#d97706; color:white; border:none; padding:6px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:6px; font-size:12px;" onclick="openEditModal('${p.id}')">تعديل المنتج</button>
                         </div>
                     </div>
                 `;
             });
         }
-
-        // إمكانية التعديل
-        window.openEditModal = function(productId) {
-            const p = allProducts.find(x => x.id === productId);
-            if (!p) return;
-            document.getElementById('editId').value = p.id;
-            document.getElementById('editName').value = p.name || '';
-            document.getElementById('editPrice').value = p.price || '';
-            document.getElementById('editSizes').value = p.sizes || '';
-            document.getElementById('editColors').value = p.colors || '';
-            document.getElementById('editModal').style.display = 'flex';
-        };
-
-        window.closeEditModal = function() {
-            document.getElementById('editModal').style.display = 'none';
-        };
-
-        window.saveProductEdit = async function() {
-            const id = document.getElementById('editId').value;
-            const name = document.getElementById('editName').value.trim();
-            const price = document.getElementById('editPrice').value.trim();
-            const sizes = document.getElementById('editSizes').value.trim();
-            const colors = document.getElementById('editColors').value.trim();
-
-            if (!name || !price) {
-                alert('الرجاء إدخال اسم المنتج والسعر على الأقل.');
-                return;
-            }
-
-            try {
-                const productRef = doc(db, "products", id);
-                await updateDoc(productRef, { name, price, sizes, colors });
-                alert('تم تعديل المنتج بنجاح!');
-                closeEditModal();
-                loadData();
-            } catch(e) {
-                alert('حدث خطأ أثناء التعديل، حاول مرة أخرى.');
-            }
-        };
 
         window.handleCartClick = function(productId) {
             const index = cart.findIndex(item => item.id === productId);
@@ -854,32 +814,6 @@
             </div>
             <button class="btn-confirm" onclick="confirmQuantity()">متابعة واختيار الألوان والمقاسات</button>
             <button class="btn-close" onclick="closeQtyModal()">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل المنتج -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">تعديل بيانات المنتج</div>
-            <input type="hidden" id="editId">
-            <div class="form-group">
-                <label>اسم المنتج *</label>
-                <input type="text" id="editName">
-            </div>
-            <div class="form-group">
-                <label>السعر (ج.س) *</label>
-                <input type="number" id="editPrice">
-            </div>
-            <div class="form-group">
-                <label>المقاسات المتاحة</label>
-                <input type="text" id="editSizes">
-            </div>
-            <div class="form-group">
-                <label>الألوان المتاحة</label>
-                <input type="text" id="editColors">
-            </div>
-            <button class="btn-confirm" onclick="saveProductEdit()">حفظ التعديلات</button>
-            <button class="btn-close" onclick="closeEditModal()">إلغاء</button>
         </div>
     </div>
 
