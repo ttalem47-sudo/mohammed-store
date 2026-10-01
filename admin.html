@@ -37,21 +37,50 @@
             transition: background 0.2s;
         }
         .btn:hover { background: #b45309; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
 
+        /* أزرار فلترة الفروع في لوحة التحكم */
         .branch-tabs {
-            display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
         }
         .branch-tab {
-            background: #1e293b; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15);
-            padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; white-space: nowrap;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
         }
-        .branch-tab.active { background: #d97706; color: white; border-color: #d97706; }
+        .branch-tab.active {
+            background: #d97706;
+            color: white;
+            border-color: #d97706;
+        }
 
+        /* تنسيق جدول أو بطاقات الطلبات */
         .order-card {
-            background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         .order-header {
-            display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
         .order-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
         .order-items-list { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; }
@@ -74,8 +103,9 @@
         const db = getFirestore(app);
 
         let allOrders = [];
-        let currentSelectedBranch = 'عطبرة';
+        let currentSelectedBranch = 'عطبرة'; // الفرع الافتراضي المعروض
 
+        // رفع منتج جديد
         window.addNewProduct = async function() {
             const name = document.getElementById('pName').value.trim();
             const price = document.getElementById('pPrice').value.trim();
@@ -92,7 +122,9 @@
             }
 
             try {
-                await addDoc(collection(db, "products"), { name, price, area, img, stock, adminNote, sizes, colors });
+                await addDoc(collection(db, "products"), {
+                    name, price, area, img, stock, adminNote, sizes, colors
+                });
                 alert('تمت إضافة العرض بنجاح!');
                 document.getElementById('productForm').reset();
             } catch (e) {
@@ -101,6 +133,7 @@
             }
         };
 
+        // إضافة طريقة توصيل جديدة
         window.addNewDelivery = async function() {
             const name = document.getElementById('dName').value.trim();
             const price = document.getElementById('dPrice').value.trim();
@@ -112,7 +145,9 @@
             }
 
             try {
-                await addDoc(collection(db, "delivery_options"), { name, price: Number(price), area });
+                await addDoc(collection(db, "delivery_options"), {
+                    name, price: Number(price), area
+                });
                 alert('تمت إضافة خيار التوصيل بنجاح!');
                 document.getElementById('deliveryForm').reset();
                 loadAdminData();
@@ -121,8 +156,10 @@
             }
         };
 
+        // تحميل الطلبات وطرق التوصيل
         async function loadAdminData() {
             try {
+                // جلب الطلبات
                 const ordersSnap = await getDocs(collection(db, "orders"));
                 allOrders = [];
                 ordersSnap.forEach(docSnap => {
@@ -130,6 +167,7 @@
                 });
                 renderOrders();
 
+                // جلب خيارات التوصيل الحالية للإدارة
                 const delSnap = await getDocs(collection(db, "delivery_options"));
                 const delContainer = document.getElementById('currentDeliveryList');
                 delContainer.innerHTML = '';
@@ -162,6 +200,7 @@
             }
         };
 
+        // التبديل بين فروع الطلبات
         window.switchBranchTab = function(branchName) {
             currentSelectedBranch = branchName;
             document.querySelectorAll('.branch-tab').forEach(tab => {
@@ -173,6 +212,8 @@
 
         function renderOrders() {
             const container = document.getElementById('ordersListContainer');
+            
+            // فلترة الطلبات بناءً على الفرع المحدد
             const filteredOrders = allOrders.filter(o => (o.branch || 'عطبرة') === currentSelectedBranch);
 
             if (filteredOrders.length === 0) {
@@ -184,7 +225,7 @@
             filteredOrders.forEach((o, index) => {
                 let itemsHtml = '';
                 if (o.items && Array.isArray(o.items)) {
-                    o.items.forEach(it => {
+                    o.items.forEach((it, i) => {
                         itemsHtml += `<div>• ${it.name} | المقاس: <strong>${it.size}</strong> | اللون: <strong>${it.color}</strong></div>`;
                     });
                 }
@@ -258,7 +299,7 @@
                     </div>
                     <div class="form-group">
                         <label>ملاحظة الإدارة (اختياري)</label>
-                        <input type="text" id="pNote" placeholder="مثال: العرض ساري حتى الستوك القادم">
+                        <input type="text" id="pNote" placeholder="مثال: العرض ساري حتى الستاك القادم">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -309,12 +350,14 @@
         <div class="card">
             <div class="card-title">سجل الطلبات الواردة (حسب الفرع)</div>
             
+            <!-- أزرار التبديل بين الفروع -->
             <div class="branch-tabs">
                 <button class="branch-tab active" onclick="switchBranchTab('عطبرة')">فرع عطبرة</button>
                 <button class="branch-tab" onclick="switchBranchTab('أمدرمان')">فرع أمدرمان</button>
                 <button class="branch-tab" onclick="switchBranchTab('بورتسودان')">فرع بورتسودان</button>
             </div>
 
+            <!-- قائمة الطلبات الخاصة بالفرع المحدد -->
             <div id="ordersListContainer">
                 <p style="text-align:center; color:#94a3b8; padding:20px;">جاري تحميل الطلبات...</p>
             </div>
