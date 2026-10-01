@@ -7,14 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        
-        /* ضبط خلفية المتجر العامة باللون الداكن المتفق عليه */
-        body { 
-            background: #0f172a; 
-            color: #f8fafc; 
-            padding-bottom: 90px; 
-            min-height: 100vh; 
-        }
+        body { background: #0f172a; color: #f8fafc; padding-bottom: 90px; }
         
         header {
             background: rgba(30, 41, 59, 0.95);
@@ -26,21 +19,15 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
         .logo { font-size: 20px; font-weight: 800; color: #fbbf24; }
         
-        .area-select-container { 
-            padding: 15px 20px; 
-            background: #1e293b; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        
+        .area-select-container { padding: 15px 20px; background: #1e293b; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .area-select {
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.2);
             background: #0f172a;
             color: #fff;
@@ -56,18 +43,16 @@
             overflow-x: auto;
             background: #1e293b;
             white-space: nowrap;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
         .cat-chip {
             background: #0f172a;
             color: #cbd5e1;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s;
         }
 
         .cat-chip.active {
@@ -86,17 +71,13 @@
 
         .product-card {
             background: #1e293b;
-            border-radius: 14px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.08);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
         }
-
-        .product-card:hover { transform: translateY(-3px); }
 
         .product-img {
             width: 100%;
@@ -106,7 +87,7 @@
         }
 
         .product-body { padding: 12px; }
-        .product-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #f8fafc; }
+        .product-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
         .product-price { font-size: 14px; color: #fbbf24; font-weight: 800; margin-bottom: 8px; }
         
         .btn-details {
@@ -115,13 +96,11 @@
             background: #0284c7;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             font-size: 13px;
-            transition: background 0.2s;
         }
-        .btn-details:hover { background: #0284c7dd; }
 
         .cart-float-btn {
             position: fixed;
@@ -129,16 +108,15 @@
             left: 20px;
             background: #16a34a;
             color: white;
-            padding: 12px 22px;
+            padding: 12px 20px;
             border-radius: 30px;
             font-weight: bold;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             z-index: 1000;
-            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .modal {
@@ -150,7 +128,6 @@
             align-items: center;
             z-index: 2000;
             padding: 20px;
-            backdrop-filter: blur(5px);
         }
 
         .modal-content {
@@ -161,8 +138,7 @@
             padding: 20px;
             max-height: 90vh;
             overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .form-group { margin-bottom: 12px; }
@@ -177,7 +153,6 @@
             font-size: 14px;
             outline: none;
         }
-        input:focus, select:focus, textarea:focus { border-color: #fbbf24; }
 
         .btn-primary {
             width: 100%;
@@ -249,7 +224,7 @@
 
         async function loadProducts() {
             const grid = document.getElementById('productsGrid');
-            grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#cbd5e1;'>جاري تحميل المنتجات...</p>";
+            grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center;'>جاري تحميل المنتجات...</p>";
             try {
                 const snap = await getDocs(collection(db, "products"));
                 allProducts = [];
@@ -310,7 +285,7 @@
             const filtered = allProducts.filter(p => p.area === currentArea && (currentCategory === "الكل" || (p.category || "عام") === currentCategory));
 
             if (filtered.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:20px;'>لا توجد عروض متاحة في هذا الفرع حالياً.</p>";
+                grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#cbd5e1;'>لا توجد عروض متاحة في هذا الفرع حالياً.</p>";
                 return;
             }
 
@@ -423,12 +398,12 @@
             cart.forEach((item, index) => {
                 total += Number(item.price);
                 list.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:8px; border-radius:6px; margin-bottom:6px; font-size:13px; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:8px; border-radius:6px; margin-bottom:6px; font-size:13px;">
                         <div>
-                            <div style="font-weight:bold; color:#fff;">${item.name}</div>
+                            <div style="font-weight:bold;">${item.name}</div>
                             <div style="color:#fbbf24;">${item.price} ج.س | مقاس: ${item.size} | لون: ${item.color}</div>
                         </div>
-                        <button onclick="removeFromCart(${index})" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">حذف</button>
+                        <button onclick="removeFromCart(${index})" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">حذف</button>
                     </div>
                 `;
             });
@@ -546,7 +521,7 @@
             </div>
 
             <button class="btn-primary" onclick="addToCartFromModal()">إضافة إلى السلة</button>
-            <button onclick="closeProductModal()" style="width:100%; padding:10px; background:#475569; color:white; border:none; border-radius:8px; margin-top:8px; cursor:pointer; font-weight:bold;">إغلاق</button>
+            <button onclick="closeProductModal()" style="width:100%; padding:10px; background:#475569; color:white; border:none; border-radius:8px; margin-top:8px; cursor:pointer;">إغلاق</button>
         </div>
     </div>
 
@@ -571,7 +546,7 @@
             <div class="form-group"><label>ملاحظات إضافية (اختياري)</label><textarea id="custNotes" rows="2"></textarea></div>
 
             <button class="btn-primary" onclick="submitOrder()">تأكيد وإرسال الطلب</button>
-            <button onclick="closeCheckoutModal()" style="width:100%; padding:10px; background:#475569; color:white; border:none; border-radius:8px; margin-top:8px; cursor:pointer; font-weight:bold;">إلغاء</button>
+            <button onclick="closeCheckoutModal()" style="width:100%; padding:10px; background:#475569; color:white; border:none; border-radius:8px; margin-top:8px; cursor:pointer;">إلغاء</button>
         </div>
     </div>
 
