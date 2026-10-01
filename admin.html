@@ -10,6 +10,36 @@
         body { background: #0f172a; color: #f8fafc; padding: 20px; min-height: 100vh; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { font-size: 24px; color: #fbbf24; margin-bottom: 20px; text-align: center; }
+
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #d97706;
+            color: #fff;
+            border-color: #d97706;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         
         .card {
             background: rgba(30, 41, 59, 0.9);
@@ -30,18 +60,6 @@
             background: #1e293b;
             color: #fff;
             font-size: 14px;
-        }
-
-        .file-upload-btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background: #3b82f6;
-            color: white;
-            text-align: center;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
         }
 
         .img-preview {
@@ -163,6 +181,13 @@
         let editImageBase64 = "";
         let editingProductId = null;
 
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        };
+
         window.handleImageUpload = function(event, isEdit = false) {
             const file = event.target.files[0];
             if (!file) return;
@@ -258,10 +283,11 @@
         window.addDeliveryOption = async function() {
             const name = document.getElementById('delName').value.trim();
             const price = document.getElementById('delPrice').value.trim();
+            const area = document.getElementById('delArea').value;
             if (!name) { alert('أدخل اسم خدمة التوصيل'); return; }
 
             try {
-                await addDoc(collection(db, "delivery_options"), { name, price: Number(price) || 0 });
+                await addDoc(collection(db, "delivery_options"), { name, price: Number(price) || 0, area });
                 document.getElementById('delName').value = '';
                 document.getElementById('delPrice').value = '';
                 loadDeliveryOptions();
@@ -278,7 +304,7 @@
                     const d = docSnap.data();
                     list.innerHTML += `
                         <div class="product-list-item">
-                            <div><strong>${d.name}</strong> <span style="color:#fbbf24;">(${d.price} ج.س)</span></div>
+                            <div><strong>${d.name}</strong> <span style="color:#fbbf24;">(${d.price} ج.س)</span> <div style="font-size:12px; color:#38bdf8;">الفرع: ${d.area}</div></div>
                             <button class="btn-delete" onclick="deleteDeliveryOption('${docSnap.id}')">حذف</button>
                         </div>
                     `;
@@ -398,6 +424,40 @@
             }
         };
 
+        // دالة حذف جميع وحدات التخزين (المنتجات، خيارات التوصيل، والطلبات)
+        window.deleteAllStorage = async function() {
+            if (!confirm('تحذير شديد! هل أنت متأكد تماماً من رغبتك في حذف جميع المنتجات، خيارات التوصيل، والطلبات الواردة نهائياً؟')) {
+                return;
+            }
+            if (!confirm('تأكيد أخیر: هذه العملية لا يمكن التراجع عنها. هل تريد المتابعة؟')) {
+                return;
+            }
+
+            try {
+                const pSnap = await getDocs(collection(db, "products"));
+                for (const dSnap of pSnap.docs) {
+                    await deleteDoc(doc(db, "products", dSnap.id));
+                }
+
+                const dSnapList = await getDocs(collection(db, "delivery_options"));
+                for (const dSnap of dSnapList.docs) {
+                    await deleteDoc(doc(db, "delivery_options", dSnap.id));
+                }
+
+                const oSnap = await getDocs(collection(db, "orders"));
+                for (const dSnap of oSnap.docs) {
+                    await deleteDoc(doc(db, "orders", dSnap.id));
+                }
+
+                alert('تم تفريغ وحذف جميع البيانات ووحدات التخزين بنجاح!');
+                loadAdminProducts();
+                loadAdminOrders();
+                loadDeliveryOptions();
+            } catch (e) {
+                alert('حدث خطأ أثناء عملية الحذف الشامل.');
+            }
+        };
+
         async function loadAdminOrders() {
             const list = document.getElementById('adminOrdersList');
             list.innerHTML = "جاري التحميل...";
@@ -464,65 +524,86 @@
     <div class="container">
         <h1>لوحة إدارة Mohamed Store</h1>
 
-        <!-- قسم التوصيل -->
-        <div class="card">
-            <h2 style="font-size: 16px; margin-bottom: 12px; color: #38bdf8;">إدارة خدمات التوصيل</h2>
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="delName" placeholder="اسم الخدمة">
-                <input type="number" id="delPrice" placeholder="السعر">
-            </div>
-            <button class="btn-secondary" style="width:100%; margin-bottom:10px;" onclick="addDeliveryOption()">إضافة خيار توصيل</button>
-            <div id="deliveryList"></div>
+        <!-- تبويبات التنقل في لوحة التحكم -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tabProducts')">إدارة المنتجات</button>
+            <button class="tab-btn" onclick="switchTab('tabDelivery')">إدارة التوصيل</button>
+            <button class="tab-btn" onclick="switchTab('tabOrders')">الطلبات الواردة</button>
         </div>
 
-        <!-- إضافة عرض جديد -->
-        <div class="card">
-            <h2 style="font-size: 16px; margin-bottom: 12px; color: #38bdf8;">إضافة عرض جديد</h2>
-            <div class="form-group"><label>اسم المنتج *</label><input type="text" id="pName"></div>
-            <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="pPrice"></div>
-            <div class="form-group">
-                <label>الفرع *</label>
-                <select id="pArea">
-                    <option value="عطبرة">عطبرة</option>
-                    <option value="أمدرمان">أمدرمان</option>
-                    <option value="بورتسودان">بورتسودان</option>
-                </select>
-            </div>
-            <div class="form-group"><label>القسم / التصنيف</label><input type="text" id="pCategory" placeholder="مثال: ملابس رجالية"></div>
-            <div class="form-group"><label>المقاسات</label><input type="text" id="pSizes" placeholder="مثال: S, M, L"></div>
-            <div class="form-group"><label>الألوان</label><input type="text" id="pColors" placeholder="مثال: أسود، أبيض"></div>
-            <div class="form-group">
-                <label>حالة المخزون</label>
-                <select id="pStock">
-                    <option value="متوفر">متوفر</option>
-                    <option value="محدود">كمية محدودة</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <label>خانات مخصصة</label>
-                    <button type="button" class="btn-secondary" onclick="addCustomField('customFieldsContainer')">إضافة خانة</button>
+        <!-- قسم إدارة المنتجات -->
+        <div id="tabProducts" class="tab-content active">
+            <div class="card">
+                <h2 style="font-size: 16px; margin-bottom: 12px; color: #38bdf8;">إضافة عرض جديد</h2>
+                <div class="form-group"><label>اسم المنتج *</label><input type="text" id="pName"></div>
+                <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="pPrice"></div>
+                <div class="form-group">
+                    <label>الفرع *</label>
+                    <select id="pArea">
+                        <option value="عطبرة">عطبرة</option>
+                        <option value="أمدرمان">أمدرمان</option>
+                        <option value="بورتسودان">بورتسودان</option>
+                    </select>
                 </div>
-                <div id="customFieldsContainer"></div>
+                <div class="form-group"><label>القسم / التصنيف</label><input type="text" id="pCategory" placeholder="مثال: ملابس رجالية"></div>
+                <div class="form-group"><label>المقاسات</label><input type="text" id="pSizes" placeholder="مثال: S, M, L"></div>
+                <div class="form-group"><label>الألوان</label><input type="text" id="pColors" placeholder="مثال: أسود، أبيض"></div>
+                <div class="form-group">
+                    <label>حالة المخزون</label>
+                    <select id="pStock">
+                        <option value="متوفر">متوفر</option>
+                        <option value="محدود">كمية محدودة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <label>خانات مخصصة</label>
+                        <button type="button" class="btn-secondary" onclick="addCustomField('customFieldsContainer')">إضافة خانة</button>
+                    </div>
+                    <div id="customFieldsContainer"></div>
+                </div>
+                <div class="form-group">
+                    <label>صورة المنتج *</label>
+                    <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event, false)">
+                    <img id="previewImg" class="img-preview">
+                </div>
+                <button class="btn-add" onclick="addProduct()">إضافة العرض</button>
             </div>
-            <div class="form-group">
-                <label>صورة المنتج *</label>
-                <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event, false)">
-                <img id="previewImg" class="img-preview">
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2 style="font-size: 16px; color: #38bdf8;">المنتجات والعروض الحالية</h2>
+                    <button class="btn-delete" style="font-size:12px; padding:6px 10px;" onclick="deleteAllStorage()">حذف جميع وحدات التخزين</button>
+                </div>
+                <div id="adminProductsList"></div>
             </div>
-            <button class="btn-add" onclick="addProduct()">إضافة العرض</button>
         </div>
 
-        <!-- الطلبات الواردة -->
-        <div class="card">
-            <h2 style="font-size: 16px; margin-bottom: 12px; color: #22c55e;">الطلبات المعلقة</h2>
-            <div id="adminOrdersList"></div>
+        <!-- قسم إدارة التوصيل -->
+        <div id="tabDelivery" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 16px; margin-bottom: 12px; color: #38bdf8;">إضافة خدمة توصيل لكل فرع</h2>
+                <div class="form-group">
+                    <label>اختر الفرع *</label>
+                    <select id="delArea">
+                        <option value="عطبرة">عطبرة</option>
+                        <option value="أمدرمان">أمدرمان</option>
+                        <option value="بورتسودان">بورتسودان</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>اسم خدمة التوصيل *</label><input type="text" id="delName" placeholder="مثال: توصيل داخل المدينة"></div>
+                <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="delPrice" placeholder="مثال: 2000"></div>
+                <button class="btn-secondary" style="width:100%; margin-bottom:10px;" onclick="addDeliveryOption()">إضافة خدمة التوصيل</button>
+                <div id="deliveryList"></div>
+            </div>
         </div>
 
-        <!-- العروض الحالية -->
-        <div class="card">
-            <h2 style="font-size: 16px; margin-bottom: 12px; color: #38bdf8;">المنتجات والعروض الحالية</h2>
-            <div id="adminProductsList"></div>
+        <!-- قسم الطلبات الواردة -->
+        <div id="tabOrders" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 16px; margin-bottom: 12px; color: #22c55e;">الطلبات المعلقة</h2>
+                <div id="adminOrdersList"></div>
+            </div>
         </div>
     </div>
 
@@ -569,4 +650,3 @@
 
 </body>
 </html>
- 
