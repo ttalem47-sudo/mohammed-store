@@ -284,7 +284,7 @@
 
         .unit-box {
             background: rgba(15, 23, 42, 0.7);
-            padding: 8px 10px;
+            padding: 10px;
             border-radius: 8px;
             margin-top: 8px;
             border-right: 3px solid #38bdf8;
@@ -647,7 +647,7 @@
                             customAnswersHtml += `
                                 <div style="margin-top: 4px;">
                                     <label style="font-size:11px; color:#cbd5e1;">${cf.name}:</label>
-                                    <input type="text" placeholder="${cf.value}" value="${unit.customAnswers[cf.name] || ''}" onchange="updateUnitCustom('${item.id}', ${uIdx}, '${cf.name}', this.value)" style="width:100%; padding:4px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;">
+                                    <input type="text" placeholder="${cf.value}" value="${unit.customAnswers[cf.name] || ''}" onchange="updateUnitCustom('${item.id}', ${uIdx}, '${cf.name}', this.value)" style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;">
                                 </div>
                             `;
                         });
@@ -655,10 +655,16 @@
 
                     unitsHtml += `
                         <div class="unit-box">
-                            <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 4px;">القطعة رقم (${uIdx + 1}):</div>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                                <div><input type="text" placeholder="المقاس" value="${unit.size || ''}" onchange="updateUnitSize('${item.id}', ${uIdx}, this.value)" style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;"></div>
-                                <div><input type="text" placeholder="اللون" value="${unit.color || ''}" onchange="updateUnitColor('${item.id}', ${uIdx}, this.value)" style="width:100%; padding:5px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:11px;"></div>
+                            <div style="font-size: 12px; font-weight: bold; color: #38bdf8; margin-bottom: 6px;">القطعة رقم (${uIdx + 1}):</div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; margin-bottom: 3px; display: block;">المقاس:</label>
+                                    <input type="text" placeholder="مثال: L / 42" value="${unit.size || ''}" onchange="updateUnitSize('${item.id}', ${uIdx}, this.value)" style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; margin-bottom: 3px; display: block;">اللون:</label>
+                                    <input type="text" placeholder="مثال: أسود" value="${unit.color || ''}" onchange="updateUnitColor('${item.id}', ${uIdx}, this.value)" style="width:100%; padding:6px; border-radius:6px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:12px;">
+                                </div>
                             </div>
                             ${customAnswersHtml}
                         </div>
@@ -667,8 +673,8 @@
 
                 container.innerHTML += `
                     <div class="selected-item-row">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24; font-size:14px; margin-bottom: 6px;">
-                            <span>${idx + 1}. ${item.name} (عدد: ${item.quantity})</span>
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fbbf24; font-size:14px; margin-bottom: 8px;">
+                            <span>${idx + 1}. ${item.name} (العدد: ${item.quantity})</span>
                             <span>${Number(item.price) * item.quantity} ج.س</span>
                         </div>
                         ${unitsHtml}
