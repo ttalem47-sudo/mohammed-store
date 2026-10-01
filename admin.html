@@ -37,22 +37,16 @@
             transition: background 0.2s;
         }
         .btn:hover { background: #b45309; }
-        .btn-danger { background: #dc2626; }
-        .btn-danger:hover { background: #b91c1c; }
-        .btn-edit { background: #2563eb; }
-        .btn-edit:hover { background: #1d4ed8; }
 
-        /* أزرار الفروع والأقسام */
-        .branch-tabs, .cat-tabs {
-            display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;
+        .branch-tabs {
+            display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;
         }
-        .branch-tab, .cat-tab {
+        .branch-tab {
             background: #1e293b; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15);
-            padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; font-size: 13px;
+            padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; white-space: nowrap;
         }
-        .branch-tab.active, .cat-tab.active { background: #d97706; color: white; border-color: #d97706; }
+        .branch-tab.active { background: #d97706; color: white; border-color: #d97706; }
 
-        /* تنسيق الطلبات */
         .order-card {
             background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px;
         }
@@ -60,22 +54,12 @@
             display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; font-size: 14px;
         }
         .order-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
-        
-        /* عناصر المنتج داخل الطلب مع الصور */
-        .order-item-row {
-            display: flex; align-items: center; gap: 10px; background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 6px; font-size: 12px;
-        }
-        .order-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; background: #1e293b; }
-
-        /* جدول إدارة المنتجات للتعديل */
-        .manage-product-row {
-            display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px;
-        }
+        .order-items-list { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 12px; }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -90,17 +74,15 @@
         const db = getFirestore(app);
 
         let allOrders = [];
-        let allProducts = [];
-        let currentBranch = 'عطبرة';
-        let editingProductId = null; // لتحديد ما إذا كنا نقوم بتعديل منتج حالي
+        let currentSelectedBranch = 'عطبرة';
 
-        // حفظ أو تحديث منتج
-        window.saveProduct = async function() {
+        window.addNewProduct = async function() {
             const name = document.getElementById('pName').value.trim();
             const price = document.getElementById('pPrice').value.trim();
             const area = document.getElementById('pArea').value;
-            const category = document.getElementById('pCategory').value;
             const img = document.getElementById('pImg').value.trim();
+            const stock = document.getElementById('pStock').value;
+            const adminNote = document.getElementById('pNote').value.trim();
             const sizes = document.getElementById('pSizes').value.trim();
             const colors = document.getElementById('pColors').value.trim();
 
@@ -110,98 +92,37 @@
             }
 
             try {
-                if (editingProductId) {
-                    // تحديث منتج موجود
-                    await updateDoc(doc(db, "products", editingProductId), {
-                        name, price, area, category, img, sizes, colors
-                    });
-                    alert('تم تعديل العرض بنجاح!');
-                    editingProductId = null;
-                    document.getElementById('submitProductBtn').innerText = 'نشر العرض في المتجر';
-                    document.getElementById('cancelEditBtn').style.display = 'none';
-                } else {
-                    // إضافة منتج جديد
-                    await addDoc(collection(db, "products"), {
-                        name, price, area, category, img, sizes, colors
-                    });
-                    alert('تمت إضافة العرض بنجاح!');
-                }
+                await addDoc(collection(db, "products"), { name, price, area, img, stock, adminNote, sizes, colors });
+                alert('تمت إضافة العرض بنجاح!');
                 document.getElementById('productForm').reset();
-                loadAdminData();
             } catch (e) {
                 console.error(e);
-                alert('حدث خطأ أثناء الحفظ');
+                alert('حدث خطأ أثناء الإضافة');
             }
         };
 
-        // تعبئة بيانات المنتج للتعديل
-        window.editProduct = function(id) {
-            const p = allProducts.find(item => item.id === id);
-            if(!p) return;
-
-            document.getElementById('pName').value = p.name;
-            document.getElementById('pPrice').value = p.price;
-            document.getElementById('pArea').value = p.area || 'عطبرة';
-            document.getElementById('pCategory').value = p.category || 'الشبابي';
-            document.getElementById('pImg').value = p.img;
-            document.getElementById('pSizes').value = p.sizes || '';
-            document.getElementById('pColors').value = p.colors || '';
-
-            editingProductId = p.id;
-            document.getElementById('submitProductBtn').innerText = 'حفظ التعديلات';
-            document.getElementById('cancelEditBtn').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.cancelEdit = function() {
-            editingProductId = null;
-            document.getElementById('productForm').reset();
-            document.getElementById('submitProductBtn').innerText = 'نشر العرض في المتجر';
-            document.getElementById('cancelEditBtn').style.display = 'none';
-        };
-
-        // حذف منتج
-        window.deleteProduct = async function(id) {
-            if(confirm('هل أنت متأكد من حذف هذا العرض؟')) {
-                await deleteDoc(doc(db, "products", id));
-                loadAdminData();
-            }
-        };
-
-        // إضافة وسيلة توصيل
         window.addNewDelivery = async function() {
             const name = document.getElementById('dName').value.trim();
             const price = document.getElementById('dPrice').value.trim();
             const area = document.getElementById('dArea').value;
 
-            if (!name || !price) return alert('يرجى كتابة الاسم والسعر');
+            if (!name || !price) {
+                alert('يرجى كتابة اسم وسيلة التوصيل والسعر');
+                return;
+            }
 
             try {
                 await addDoc(collection(db, "delivery_options"), { name, price: Number(price), area });
-                alert('تمت الإضافة بنجاح!');
+                alert('تمت إضافة خيار التوصيل بنجاح!');
                 document.getElementById('deliveryForm').reset();
                 loadAdminData();
-            } catch (e) { console.error(e); }
-        };
-
-        window.deleteDelivery = async function(id) {
-            if (confirm('حذف وسيلة التوصيل؟')) {
-                await deleteDoc(doc(db, "delivery_options", id));
-                loadAdminData();
+            } catch (e) {
+                console.error(e);
             }
         };
 
-        window.deleteOrder = async function(id) {
-            if (confirm('هل تريد حذف هذا الطلب؟')) {
-                await deleteDoc(doc(db, "orders", id));
-                loadAdminData();
-            }
-        };
-
-        // تحميل بيانات الإدارة
         async function loadAdminData() {
             try {
-                // جلب الطلبات
                 const ordersSnap = await getDocs(collection(db, "orders"));
                 allOrders = [];
                 ordersSnap.forEach(docSnap => {
@@ -209,15 +130,6 @@
                 });
                 renderOrders();
 
-                // جلب المنتجات للإدارة والتعديل
-                const prodSnap = await getDocs(collection(db, "products"));
-                allProducts = [];
-                prodSnap.forEach(docSnap => {
-                    allProducts.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                renderManageProducts();
-
-                // جلب خيارات التوصيل
                 const delSnap = await getDocs(collection(db, "delivery_options"));
                 const delContainer = document.getElementById('currentDeliveryList');
                 delContainer.innerHTML = '';
@@ -236,38 +148,44 @@
             }
         }
 
-        window.switchBranchTab = function(branch) {
-            currentBranch = branch;
-            document.querySelectorAll('.branch-tab').forEach(t => {
-                t.classList.remove('active');
-                if(t.innerText.includes(branch)) t.classList.add('active');
+        window.deleteDelivery = async function(id) {
+            if (confirm('هل أنت متأكد من حذف خيار التوصيل هذا؟')) {
+                await deleteDoc(doc(db, "delivery_options", id));
+                loadAdminData();
+            }
+        };
+
+        window.deleteOrder = async function(id) {
+            if (confirm('هل تريد حذف هذا الطلب؟')) {
+                await deleteDoc(doc(db, "orders", id));
+                loadAdminData();
+            }
+        };
+
+        window.switchBranchTab = function(branchName) {
+            currentSelectedBranch = branchName;
+            document.querySelectorAll('.branch-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.innerText.includes(branchName)) tab.classList.add('active');
             });
             renderOrders();
         };
 
         function renderOrders() {
             const container = document.getElementById('ordersListContainer');
-            const filtered = allOrders.filter(o => (o.branch || 'عطبرة') === currentBranch);
+            const filteredOrders = allOrders.filter(o => (o.branch || 'عطبرة') === currentSelectedBranch);
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">لا توجد طلبات واردة لفرع ${currentBranch} حالياً</p>`;
+            if (filteredOrders.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">لا توجد طلبات واردة لفرع ${currentSelectedBranch} حالياً</p>`;
                 return;
             }
 
             container.innerHTML = '';
-            filtered.forEach((o, index) => {
+            filteredOrders.forEach((o, index) => {
                 let itemsHtml = '';
                 if (o.items && Array.isArray(o.items)) {
                     o.items.forEach(it => {
-                        itemsHtml += `
-                            <div class="order-item-row">
-                                <img src="${it.img}" class="order-item-img" onerror="this.src='https://via.placeholder.com/50'">
-                                <div>
-                                    <strong>${it.name}</strong><br>
-                                    <span style="color:#38bdf8;">المقاس: ${it.size} | اللون: ${it.color} | السعر: ${it.price} ج.س</span>
-                                </div>
-                            </div>
-                        `;
+                        itemsHtml += `<div>• ${it.name} | المقاس: <strong>${it.size}</strong> | اللون: <strong>${it.color}</strong></div>`;
                     });
                 }
 
@@ -282,34 +200,12 @@
                             <div><strong>الهاتف:</strong> ${o.customerPhone} ${o.customerPhone2 !== 'لا يوجد' ? ' / ' + o.customerPhone2 : ''}</div>
                             <div><strong>العنوان:</strong> ${o.customerAddress}</div>
                             <div><strong>التوصيل:</strong> ${o.deliveryService}</div>
-                            <div style="margin-top:8px; font-weight:bold; color:#38bdf8;">المنتجات المطلوبة (مع الصور):</div>
-                            ${itemsHtml}
-                            <div style="margin-top:10px; font-weight:bold; color:#4ade80; font-size:14px;">الإجمالي الكلي: ${o.totalAmount} ج.س</div>
+                            <div class="order-items-list">
+                                <div style="font-weight:bold; color:#38bdf8; margin-bottom:4px;">المنتجات والقطع المطلوبة:</div>
+                                ${itemsHtml}
+                            </div>
+                            <div style="margin-top:8px; font-weight:bold; color:#4ade80;">الإجمالي الكلي: ${o.totalAmount} ج.س</div>
                             ${o.customerNotes !== 'لا توجد ملاحظات' ? `<div style="margin-top:4px; color:#fbbf24;">ملاحظة الزبون: ${o.customerNotes}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function renderManageProducts() {
-            const container = document.getElementById('manageProductsList');
-            if(allProducts.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:12px;">لا توجد عروض مضافة حالياً</p>`;
-                return;
-            }
-
-            container.innerHTML = '';
-            allProducts.forEach(p => {
-                container.innerHTML += `
-                    <div class="manage-product-row">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <img src="${p.img}" style="width:35px; height:35px; object-fit:cover; border-radius:4px;">
-                            <div><strong>${p.name}</strong> <span style="color:#94a3b8; font-size:11px;">(${p.area} - ${p.category})</span> - ${p.price} ج.س</div>
-                        </div>
-                        <div style="display:flex; gap:5px;">
-                            <button onclick="editProduct('${p.id}')" class="btn btn-edit" style="padding:4px 8px; font-size:11px;">تعديل</button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">حذف</button>
                         </div>
                     </div>
                 `;
@@ -326,13 +222,13 @@
     <div class="container">
         <h1>لوحة تحكم المشرف - Mohammed Store</h1>
 
-        <!-- 1. إضافة أو تعديل عرض -->
+        <!-- 1. إضافة عرض جديد -->
         <div class="card">
-            <div class="card-title">إضافة أو تعديل عرض في المتجر</div>
-            <form id="productForm" onsubmit="event.preventDefault(); saveProduct();">
+            <div class="card-title">إضافة عرض أو منتج جديد</div>
+            <form id="productForm" onsubmit="event.preventDefault(); addNewProduct();">
                 <div class="form-group">
                     <label>اسم العرض أو المنتج</label>
-                    <input type="text" id="pName" placeholder="مثال: تيشرت شبابي راقي">
+                    <input type="text" id="pName" placeholder="مثال: حذاء رياضي راقي">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="form-group">
@@ -348,41 +244,35 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>رابط الصورة (Image URL)</label>
+                    <input type="text" id="pImg" placeholder="رابط الصورة المباشر">
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="form-group">
-                        <label>القسم</label>
-                        <select id="pCategory">
-                            <option value="الشبابي">الشبابي</option>
-                            <option value="أطفالي">أطفالي</option>
-                            <option value="اسبورتات">اسبورتات</option>
+                        <label>حالة الكمية</label>
+                        <select id="pStock">
+                            <option value="متوفر">متوفر بكثرة</option>
+                            <option value="محدود">كمية محدودة</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>رابط الصورة (Image URL)</label>
-                        <input type="text" id="pImg" placeholder="رابط الصورة المباشر">
+                        <label>ملاحظة الإدارة (اختياري)</label>
+                        <input type="text" id="pNote" placeholder="مثال: العرض ساري حتى الستوك القادم">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="form-group">
                         <label>المقاسات المتاحة</label>
-                        <input type="text" id="pSizes" placeholder="مثال: S, M, L أو 41, 42">
+                        <input type="text" id="pSizes" placeholder="مثال: 41, 42, 43 أو S, M, L">
                     </div>
                     <div class="form-group">
                         <label>الألوان المتاحة</label>
-                        <input type="text" id="pColors" placeholder="مثال: أسود، أبيض">
+                        <input type="text" id="pColors" placeholder="مثال: أسود، أبيض، كحلي">
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" id="submitProductBtn" class="btn">نشر العرض في المتجر</button>
-                    <button type="button" id="cancelEditBtn" class="btn btn-danger hidden" onclick="cancelEdit()" style="width: auto;">إلغاء التعديل</button>
-                </div>
+                <button type="submit" class="btn">نشر العرض في المتجر</button>
             </form>
-        </div>
-
-        <!-- قائمة إدارة وتعديل المنتجات الحالية -->
-        <div class="card">
-            <div class="card-title">إدارة وتعديل العروض الحالية</div>
-            <div id="manageProductsList" style="max-height: 200px; overflow-y: auto;"></div>
         </div>
 
         <!-- 2. إدارة وتحديد أسعار التوصيل -->
@@ -392,7 +282,7 @@
                 <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
                     <div class="form-group">
                         <label>اسم منطقة التوصيل</label>
-                        <input type="text" id="dName" placeholder="مثال: وسط المدينة">
+                        <input type="text" id="dName" placeholder="مثال: وسط المدينة / الأحياء الشمالية">
                     </div>
                     <div class="form-group">
                         <label>السعر (ج.س)</label>
@@ -409,12 +299,15 @@
                 </div>
                 <button type="submit" class="btn" style="background: #2563eb; margin-top: 5px;">إضافة خيار التوصيل</button>
             </form>
-            <div style="margin-top: 15px;" id="currentDeliveryList"></div>
+            <div style="margin-top: 15px;">
+                <div style="font-size: 13px; font-weight: bold; color: #cbd5e1; margin-bottom: 8px;">الخيارات الحالية المسجلة:</div>
+                <div id="currentDeliveryList"></div>
+            </div>
         </div>
 
-        <!-- 3. عرض الطلبات مفصولة حسب الفروع مع الصور -->
+        <!-- 3. عرض الطلبات مفصولة حسب الفروع -->
         <div class="card">
-            <div class="card-title">سجل الطلبات الواردة (حسب الفرع والصور)</div>
+            <div class="card-title">سجل الطلبات الواردة (حسب الفرع)</div>
             
             <div class="branch-tabs">
                 <button class="branch-tab active" onclick="switchBranchTab('عطبرة')">فرع عطبرة</button>
