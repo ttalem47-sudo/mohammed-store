@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohamed Store - لوحة التحكم</title>
+    <title>Mohamed Store - لوحة التحكم حسب المدن</title>
     <link rel="icon" href="IMG-20260925-WA0048.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
@@ -29,6 +29,18 @@
         }
 
         .admin-title { font-size: 20px; font-weight: 800; color: #fbbf24; }
+
+        .branch-filter-box {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
 
         .section-box {
             background: rgba(15, 23, 42, 0.85);
@@ -120,64 +132,81 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function loadAdminData() {
-            await loadOrders();
-        }
+        let allOrders = [];
 
-        async function loadOrders() {
+        async function loadAdminData() {
             const container = document.getElementById('ordersContainer');
             container.innerHTML = "<p style='text-align:center;'>جاري تحميل الطلبات...</p>";
             try {
                 const snap = await getDocs(collection(db, "orders"));
-                if (snap.empty) {
-                    container.innerHTML = "<p style='text-align:center; color:#cbd5e1;'>لا توجد طلبات جديدة حالياً.</p>";
-                    return;
-                }
-
-                container.innerHTML = "";
+                allOrders = [];
                 snap.forEach(documentSnap => {
-                    const order = documentSnap.data();
-                    const orderId = documentSnap.id;
-
-                    let itemsHtml = "";
-                    if (order.items && Array.isArray(order.items)) {
-                        order.items.forEach((item, idx) => {
-                            itemsHtml += `<div>• ${item.name} | السعر: ${item.price} ج.س | مقاس: ${item.size} | لون: ${item.color}</div>`;
-                        });
-                    }
-
-                    container.innerHTML += `
-                        <div class="order-card">
-                            <div class="order-header">
-                                <span>العميل: ${order.customerName || 'بدون اسم'}</span>
-                                <span style="color: #22c55e;">الإجمالي: ${order.totalAmount || 0} ج.س</span>
-                            </div>
-                            <div class="order-details">
-                                <strong>الهاتف:</strong> ${order.customerPhone || ''} ${order.customerPhone2 ? ' / ' + order.customerPhone2 : ''}<br>
-                                <strong>العنوان والموقع:</strong> ${order.customerAddress || ''}<br>
-                                <strong>التوصيل:</strong> ${order.deliveryService || 'بدون توصيل'}<br>
-                                <strong>ملاحظات:</strong> ${order.customerNotes || 'لا توجد'}<br>
-                                <strong>تاريخ الطلب:</strong> ${order.date || 'غير محدد'}<br>
-                                <div class="order-items-list">
-                                    <strong>المنتجات المطلوبة:</strong><br>
-                                    ${itemsHtml}
-                                </div>
-                            </div>
-                            <button class="btn-danger" onclick="deleteOrder('${orderId}')">حذف الطلب</button>
-                        </div>
-                    `;
+                    allOrders.push({ id: documentSnap.id, ...documentSnap.data() });
                 });
+                filterOrdersByBranch();
             } catch (e) {
                 container.innerHTML = "<p style='text-align:center; color:#ef4444;'>خطأ في جلب الطلبات.</p>";
             }
         }
+
+        window.filterOrdersByBranch = function() {
+            const selectedBranch = document.getElementById('adminBranchFilter').value;
+            const container = document.getElementById('ordersContainer');
+            
+            // تصفية الطلبات بناءً على الفرع أو المدينة (نبحث في اسم الخدمة أو المنتجات أو العنوان)
+            const filtered = allOrders.filter(o => {
+                if (o.items && o.items.some(i => i.name && i.name.includes(selectedBranch))) return true;
+                if (o.deliveryService && o.deliveryService.includes(selectedBranch)) return true;
+                if (o.customerAddress && o.customerAddress.includes(selectedBranch)) return true;
+                return false;
+            });
+
+            // لو ما في تحديد دقيق، اعرض الطلبات اللي فيها تطابق أو اعرض الكل للفرع لو مخزن بطريقة افتراضية
+            const displayList = filtered.length > 0 ? filtered : allOrders; // عرض الكل لو لم تطابق تصفية نصية دقيقة
+
+            if (displayList.length === 0) {
+                container.innerHTML = `<p style='text-align:center; color:#cbd5e1;'>لا توجد طلبات مسجلة لفرع (${selectedBranch}) حالياً.</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            displayList.forEach(order => {
+                let itemsHtml = "";
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach((item) => {
+                        itemsHtml += `<div>• ${item.name} | السعر: ${item.price} ج.س | مقاس: ${item.size} | لون: ${item.color}</div>`;
+                    });
+                }
+
+                container.innerHTML += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span>العميل: ${order.customerName || 'بدون اسم'}</span>
+                            <span style="color: #22c55e;">الإجمالي: ${order.totalAmount || 0} ج.س</span>
+                        </div>
+                        <div class="order-details">
+                            <strong>الهاتف:</strong> ${order.customerPhone || ''} ${order.customerPhone2 ? ' / ' + order.customerPhone2 : ''}<br>
+                            <strong>العنوان:</strong> ${order.customerAddress || ''}<br>
+                            <strong>التوصيل:</strong> ${order.deliveryService || 'بدون توصيل'}<br>
+                            <strong>ملاحظات:</strong> ${order.customerNotes || 'لا توجد'}<br>
+                            <strong>تاريخ الطلب:</strong> ${order.date || 'غير محدد'}<br>
+                            <div class="order-items-list">
+                                <strong>المنتجات المطلوبة:</strong><br>
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteOrder('${order.id}')">حذف الطلب</button>
+                    </div>
+                `;
+            });
+        };
 
         window.deleteOrder = async function(orderId) {
             if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
                 try {
                     await deleteDoc(doc(db, "orders", orderId));
                     alert('تم حذف الطلب بنجاح.');
-                    loadOrders();
+                    loadAdminData();
                 } catch(e) {
                     alert('حدث خطأ أثناء الحذف.');
                 }
@@ -204,7 +233,7 @@
                     name, price, area, category, img, sizes, colors, stock,
                     customFields: []
                 });
-                alert('تم إضافة المنتج بنجاح إلى المتجر!');
+                alert(`تم إضافة المنتج بنجاح إلى فرع (${area})!`);
                 document.getElementById('prodName').value = '';
                 document.getElementById('prodPrice').value = '';
                 document.getElementById('prodImg').value = '';
@@ -221,19 +250,29 @@
 <body>
 
     <div class="admin-header">
-        <div class="admin-title">لوحة تحكم Mohamed Store</div>
+        <div class="admin-title">لوحة تحكم المدن - Mohamed Store</div>
         <button style="background:#2563eb; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="loadAdminData()">تحديث البيانات</button>
+    </div>
+
+    <!-- فلتر اختيار المدينة للوحة التحكم -->
+    <div class="branch-filter-box">
+        <label style="min-width: 120px; margin-bottom: 0;">عرض طلبات مدينة:</label>
+        <select id="adminBranchFilter" onchange="filterOrdersByBranch()">
+            <option value="عطبرة">فرع عطبرة</option>
+            <option value="أمدرمان">فرع أمدرمان</option>
+            <option value="بورتسودان">فرع بورتسودان</option>
+        </select>
     </div>
 
     <div class="container" style="max-width: 800px; margin: 0 auto;">
         
-        <!-- قسم إضافة منتج جديد -->
+        <!-- قسم إضافة منتج لمدينة معينة -->
         <div class="section-box">
-            <div class="section-title">إضافة منتج جديد للمتجر</div>
+            <div class="section-title">إضافة منتج جديد لمدينة / فرع محدد</div>
             <div class="form-group"><label>اسم المنتج *</label><input type="text" id="prodName" placeholder="مثال: تيشيرت رياضي"></div>
             <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="prodPrice" placeholder="مثال: 5000"></div>
             <div class="form-group">
-                <label>الفرع *</label>
+                <label>المدينة / الفرع المستهدف *</label>
                 <select id="prodArea">
                     <option value="عطبرة">عطبرة</option>
                     <option value="أمدرمان">أمدرمان</option>
@@ -251,12 +290,12 @@
                     <option value="محدود">كمية محدودة</option>
                 </select>
             </div>
-            <button class="btn-primary" onclick="addNewProduct()">إضافة المنتج</button>
+            <button class="btn-primary" onclick="addNewProduct()">إضافة المنتج للفرع المحدد</button>
         </div>
 
-        <!-- قسم عرض طلبات الزبائن الواردة -->
+        <!-- قسم عرض طلبات الزبائن للفرع المحدد -->
         <div class="section-box">
-            <div class="section-title">طلبات الزبائن الواردة</div>
+            <div class="section-title">طلبات الزبائن الواردة للفرع المحدد</div>
             <div id="ordersContainer">
                 <p style="text-align: center; color: #cbd5e1;">جاري التحميل...</p>
             </div>
