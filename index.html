@@ -362,7 +362,6 @@
             document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
-            // ضبط الخلفية وتغبيشها حسب الصفحة
             const body = document.getElementById('mainBody');
             if (pageId === 'welcomeView') {
                 body.className = 'welcome-page-bg';
@@ -436,7 +435,7 @@
             } else {
                 pendingProductId = productId;
                 selectedQty = 1;
-                document.getElementById('qtyModalVal').innerText = selectedQty;
+                document.getElementById('modalQtyVal').innerText = selectedQty;
                 const p = allProducts.find(x => x.id === productId);
                 document.getElementById('qtyModalTitle').innerText = `حدد العدد المطلوب من (${p.name})`;
                 document.getElementById('qtyModal').style.display = 'flex';
@@ -514,7 +513,6 @@
                 `;
             });
 
-            // تعبئة خيارات التوصيل الخاصة بالفرع فقط
             const deliverySelect = document.getElementById('custDelivery');
             deliverySelect.innerHTML = `<option value="0" data-name="بدون توصيل">اختر طريقة التوصيل...</option>`;
             const branchDeliveries = deliveryOptions.filter(opt => opt.area === currentCity);
@@ -567,7 +565,6 @@
                 });
             });
 
-            // حفظ الطلب في قاعدة البيانات لكي يظهر في لوحة تحكم الأدمن للفرع المختص حصرياً
             try {
                 await addDoc(collection(db, "orders"), {
                     customerName,
@@ -587,7 +584,6 @@
                 console.error("Error saving order", e);
             }
 
-            // تجهيز رسالة الواتساب
             let itemsText = "";
             cart.forEach((item, index) => {
                 itemsText += `*${index + 1}. ${item.name}* (العدد: ${item.quantity})%0A`;
@@ -723,7 +719,7 @@
         <button class="btn-checkout-trigger" onclick="openCheckoutModal()">شراء / إتمام الطلب</button>
     </div>
 
-    <!-- نافذة تحديد العدد للقطعة -->
+    <!-- نافذة تحديد العدد للقطعة (مصححة المعرف) -->
     <div class="modal" id="qtyModal">
         <div class="modal-content" style="text-align: center;">
             <div class="modal-header" id="qtyModalTitle">حدد العدد المطلوب</div>
@@ -797,3 +793,4 @@
 
 </body>
 </html>
+ 
