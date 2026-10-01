@@ -208,11 +208,27 @@
             margin-bottom: 8px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* تنسيق معاينة الصور المرفوعة */
+        .preview-images-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .preview-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #fbbf24;
+            cursor: pointer;
+        }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgKitAdhuq2B2iGGuMKSsXd4loF",
@@ -227,6 +243,7 @@
         const db = getFirestore(app);
 
         let currentActiveCity = '';
+        let uploadedImagesBase64 = []; // لتخزين الصور المختارة محلياً بصيغة Base64
 
         window.selectCityAdmin = function(cityName) {
             currentActiveCity = cityName;
@@ -255,34 +272,72 @@
             await loadCityDelivery();
         }
 
+        // --- التعامل مع رفع الصور المتعددة من المعرض وتحويلها لـ Base64 ---
+        window.handleImagesSelection = function(event) {
+            const files = event.target.files;
+            uploadedImagesBase64 = [];
+            const container = document.getElementById('imagePreviews');
+            container.innerHTML = '';
+
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedImagesBase64.push(e.target.result);
+                        container.innerHTML += `<img src="${e.target.result}" class="preview-thumb" onclick="openFullPreview('${e.target.result}')">`;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        };
+
+        window.openFullPreview = function(imgSrc) {
+            document.getElementById('modalPreviewImg').src = imgSrc;
+            document.getElementById('fullImgModal').style.display = 'flex';
+        };
+
+        window.closeFullPreview = function() {
+            document.getElementById('fullImgModal').style.display = 'none';
+        };
+
         // --- 1. إدارة العروض والمنتجات ---
         window.addNewProduct = async function() {
             const name = document.getElementById('prodName').value.trim();
             const price = document.getElementById('prodPrice').value.trim();
             const category = document.getElementById('prodCategory').value.trim() || 'عام';
-            const img = document.getElementById('prodImg').value.trim();
             const sizes = document.getElementById('prodSizes').value.trim();
             const colors = document.getElementById('prodColors').value.trim();
             const stock = document.getElementById('prodStock').value;
             const adminNote = document.getElementById('prodAdminNote').value.trim();
 
-            if (!name || !price || !img) {
-                alert('الرجاء إدخال اسم المنتج، السعر، ورابط الصورة على الأقل.');
+            if (!name || !price || uploadedImagesBase64.length === 0) {
+                alert('الرجاء إدخال اسم المنتج، السعر، واختيار صورة واحدة على الأقل من المعرض.');
                 return;
             }
 
             try {
                 await addDoc(collection(db, "products"), {
-                    name, price, area: currentActiveCity, category, img, sizes, colors, stock, adminNote,
+                    name, 
+                    price, 
+                    area: currentActiveCity, 
+                    category, 
+                    img: uploadedImagesBase64[0], // الصورة الرئيسية للعرض المباشر
+                    images: uploadedImagesBase64, // قائمة كل الصور المرفوعة
+                    sizes, 
+                    colors, 
+                    stock, 
+                    adminNote,
                     customFields: []
                 });
                 alert('تم رفع المنتج بنجاح في المتجر!');
                 document.getElementById('prodName').value = '';
                 document.getElementById('prodPrice').value = '';
-                document.getElementById('prodImg').value = '';
+                document.getElementById('prodImagesInput').value = '';
+                document.getElementById('imagePreviews').innerHTML = '';
                 document.getElementById('prodSizes').value = '';
                 document.getElementById('prodColors').value = '';
                 document.getElementById('prodAdminNote').value = '';
+                uploadedImagesBase64 = [];
                 loadCityProducts();
             } catch(e) {
                 alert('حدث خطأ أثناء رفع المنتج.');
@@ -302,9 +357,12 @@
                         count++;
                         container.innerHTML += `
                             <div class="order-card" style="display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <strong>${p.name}</strong> - ${p.price} ج.س (${p.stock})<br>
-                                    <span style="font-size:12px; color:#cbd5e1;">ملاحظة: ${p.adminNote || 'لا توجد'}</span>
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <img src="${p.img}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; cursor:pointer;" onclick="openFullPreview('${p.img}')">
+                                    <div>
+                                        <strong>${p.name}</strong> - ${p.price} ج.س (${p.stock})<br>
+                                        <span style="font-size:12px; color:#cbd5e1;">ملاحظة: ${p.adminNote || 'لا توجد'}</span>
+                                    </div>
                                 </div>
                                 <button class="btn-danger" onclick="deleteProduct('${documentSnap.id}')">حذف</button>
                             </div>
@@ -342,12 +400,6 @@
                     const order = documentSnap.data();
                     const orderId = documentSnap.id;
                     
-                    // تحقق أن الطلب يخص هذه المدينة
-                    const isForThisCity = (order.deliveryService && order.deliveryService.includes(currentActiveCity)) || 
-                                          (order.items && order.items.some(i => i.name && i.name.includes(currentActiveCity))) ||
-                                          (order.customerAddress && order.customerAddress.includes(currentActiveCity));
-
-                    // إذا لم تتطابق بدقة تامة لكن الإدارة تريد عرضها أو تصفيتها
                     count++;
                     let itemsHtml = "";
                     if (order.items && Array.isArray(order.items)) {
@@ -496,7 +548,7 @@
                 <button class="tab-btn" onclick="switchTab('sectionDelivery')">خدمات التوصيل</button>
             </div>
 
-            <!-- القسم الأول: رفع العروض -->
+            <!-- القسم الأول: رفع العروض مع دعم صور متعددة من المعرض -->
             <div id="sectionUpload" class="admin-section active">
                 <div class="section-title">
                     <span>رفع وتعديل العروض والمنتجات</span>
@@ -505,7 +557,14 @@
                 <div class="form-group"><label>اسم المنتج *</label><input type="text" id="prodName" placeholder="مثال: تيشيرت رياضي"></div>
                 <div class="form-group"><label>السعر (ج.س) *</label><input type="number" id="prodPrice" placeholder="مثال: 5000"></div>
                 <div class="form-group"><label>التصنيف</label><input type="text" id="prodCategory" placeholder="مثال: ملابس، إلكترونيات"></div>
-                <div class="form-group"><label>رابط الصورة (Image URL أو اسم الملف) *</label><input type="text" id="prodImg" placeholder="رابط الصورة"></div>
+                
+                <!-- خانة اختيار صور متعددة من المعرض -->
+                <div class="form-group">
+                    <label>اختر الصور من المعرض (يمكن اختيار عدة صور) *</label>
+                    <input type="file" id="prodImagesInput" accept="image/*" multiple onchange="handleImagesSelection(event)" style="padding: 7px;">
+                    <div id="imagePreviews" class="preview-images-container"></div>
+                </div>
+
                 <div class="form-group"><label>المقاسات المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodSizes" placeholder="S, M, L, XL"></div>
                 <div class="form-group"><label>الألوان المتاحة (مفصولة بفاصلة)</label><input type="text" id="prodColors" placeholder="أسود، أبيض، أحمر"></div>
                 <div class="form-group">
@@ -550,6 +609,11 @@
 
         </div>
 
+    </div>
+
+    <!-- نافذة تكبير الصورة لمعاينة واضحة -->
+    <div id="fullImgModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.9); display:none; justify-content:center; align-items:center; z-index:3000; padding:20px;" onclick="closeFullPreview()">
+        <img id="modalPreviewImg" src="" style="max-width:100%; max-height:85vh; border-radius:12px; border:2px solid #fbbf24;">
     </div>
 
 </body>
