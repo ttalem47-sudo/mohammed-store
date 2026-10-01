@@ -211,10 +211,11 @@
                 deliveryOptionsMap = {};
                 snap.forEach(doc => {
                     const d = doc.data();
-                    if (!deliveryOptionsMap[d.area]) {
-                        deliveryOptionsMap[d.area] = [];
+                    const area = d.area || "عطبرة";
+                    if (!deliveryOptionsMap[area]) {
+                        deliveryOptionsMap[area] = [];
                     }
-                    deliveryOptionsMap[d.area].push(d);
+                    deliveryOptionsMap[area].push(d);
                 });
             } catch(e) {}
         }
@@ -228,6 +229,7 @@
                 snap.forEach(doc => {
                     allProducts.push({ id: doc.id, ...doc.data() });
                 });
+                renderAreasDropdown();
                 renderCategories();
                 filterAndRenderProducts();
             } catch (e) {
@@ -235,8 +237,23 @@
             }
         }
 
+        function renderAreasDropdown() {
+            const selectEl = document.getElementById('areaSelect');
+            // استخراج كافة المناطق الموجودة في المنتجات وخدمات التوصيل
+            const areasSet = new Set(["عطبرة", "أمدرمان", "بورتسودان"]);
+            allProducts.forEach(p => { if (p.area) areasSet.add(p.area); });
+            Object.keys(deliveryOptionsMap).forEach(a => areasSet.add(a));
+
+            selectEl.innerHTML = "";
+            areasSet.forEach(area => {
+                selectEl.innerHTML += `<option value="${area}" ${area === currentArea ? 'selected' : ''}>${area}</option>`;
+            });
+        }
+
         window.changeArea = function(area) {
             currentArea = area;
+            currentCategory = "الكل";
+            renderCategories();
             filterAndRenderProducts();
         };
 
@@ -301,19 +318,16 @@
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = p.price + " ج.س";
 
-            // إعداد المقاسات
             const sizeSelect = document.getElementById('modalSize');
             sizeSelect.innerHTML = "";
             const sizes = (p.sizes || "حسب المتاح").split(',');
             sizes.forEach(s => sizeSelect.innerHTML += `<option value="${s.trim()}">${s.trim()}</option>`);
 
-            // إعداد الألوان
             const colorSelect = document.getElementById('modalColor');
             colorSelect.innerHTML = "";
             const colors = (p.colors || "جميع الألوان متوفرة").split(',');
             colors.forEach(c => colorSelect.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`);
 
-            // الخانات المخصصة
             const customContainer = document.getElementById('modalCustomFields');
             customContainer.innerHTML = "";
             if (p.customFields && p.customFields.length > 0) {
@@ -355,13 +369,12 @@
                 return;
             }
 
-            // تحديث خيارات التوصيل بناءً على الفرع الحالي
             const deliverySelect = document.getElementById('checkoutDelivery');
             deliverySelect.innerHTML = "";
             const options = deliveryOptionsMap[currentArea] || [];
             
             if (options.length === 0) {
-                deliverySelect.innerHTML = `<option value="توصيل عادي|0">توصيل أساسي (0 ج.س)</option>`;
+                deliverySelect.innerHTML = `<option value="توصيل أساسي|0">توصيل أساسي (0 ج.س)</option>`;
             } else {
                 options.forEach(opt => {
                     deliverySelect.innerHTML += `<option value="${opt.name}|${opt.price}">${opt.name} (${opt.price} ج.س)</option>`;
@@ -394,7 +407,6 @@
                 `;
             });
 
-            // حساب التوصيل
             const deliveryVal = document.getElementById('checkoutDelivery').value.split('|');
             const deliveryPrice = Number(deliveryVal[1]) || 0;
             const grandTotal = total + deliveryPrice;
@@ -539,4 +551,3 @@
 
 </body>
 </html>
- 
