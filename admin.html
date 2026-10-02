@@ -13,6 +13,22 @@
         
         h1 { color: #fbbf24; text-align: center; margin-bottom: 25px; font-weight: 800; font-size: 24px; }
         
+        /* شاشة تسجيل الدخول */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-box {
+            background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .login-box h2 { color: #fbbf24; margin-bottom: 20px; font-size: 20px; }
+        .login-box input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px; background: #0f172a; color: #fff; font-size: 15px; text-align: center;
+        }
+
         .card {
             background: rgba(30, 41, 59, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -59,6 +75,8 @@
         .product-row {
             display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 13px;
         }
+        
+        #adminContent { display: none; }
     </style>
 
     <script type="module">
@@ -82,16 +100,60 @@
         let currentSelectedBranch = 'عطبرة';
         let editingProductId = null;
 
-        // تحويل الصورة المرفوعة من المعرض إلى Base64
+        // كلمة المرور الخاصة بالدخول للوحة التحكم (يمكنك تغييرها هنا)
+        const ADMIN_PASSWORD = "123";
+
+        window.checkLogin = function() {
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert('كلمة المرور غير صحيحة!');
+            }
+        };
+
+        // ضغط وتصغير الصور تلقائياً لتجنب مشاكل الحجم في قاعدة البيانات
         window.handleImageUpload = function(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('pImg').value = e.target.result;
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 600;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // تحويل الصورة إلى Base64 بجودة مقبولة (0.7)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('pImg').value = compressedDataUrl;
+                    alert('تم اختيار وضغط الصورة بنجاح!');
                 };
-                reader.readAsDataURL(file);
-            }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         };
 
         window.addNewProduct = async function() {
@@ -105,18 +167,18 @@
             const colors = document.getElementById('pColors').value.trim();
 
             if (!name || !price || !img) {
-                alert('يرجى ملء الحقول الأساسية (اسم المنتج، السعر، رابط الصورة أو رفعها من المعرض)');
+                alert('يرجى ملء الحقول الأساسية (اسم المنتج، السعر، ورفع الصورة أو رابطها)');
                 return;
             }
 
             try {
                 if (editingProductId) {
-                    await updateDoc(doc(db, "products", editingProductId), { name, price, area, img, stock, adminNote, sizes, colors });
-                    alert('تمت تعديل العرض بنجاح!');
+                    await updateDoc(doc(db, "products", editingProductId), { name, price: Number(price), area, img, stock, adminNote, sizes, colors });
+                    alert('تم تعديل العرض بنجاح!');
                     editingProductId = null;
                     document.getElementById('submitBtn').innerText = 'نشر العرض في المتجر';
                 } else {
-                    await addDoc(collection(db, "products"), { name, price, area, img, stock, adminNote, sizes, colors });
+                    await addDoc(collection(db, "products"), { name, price: Number(price), area, img, stock, adminNote, sizes, colors });
                     alert('تمت إضافة العرض بنجاح!');
                 }
                 document.getElementById('productForm').reset();
@@ -275,7 +337,7 @@
                         </div>
                         <div class="order-details">
                             <div><strong>المستلم:</strong> ${o.customerName}</div>
-                            <div><strong>الهاتف:</strong> ${o.customerPhone} ${o.customerPhone2 !== 'لا يوجد' ? ' / ' + o.customerPhone2 : ''}</div>
+                            <div><strong>الهاتف:</strong> ${o.customerPhone} ${o.customerPhone2 && o.customerPhone2 !== 'لا يوجد' ? ' / ' + o.customerPhone2 : ''}</div>
                             <div><strong>العنوان:</strong> ${o.customerAddress}</div>
                             <div><strong>التوصيل:</strong> ${o.deliveryService}</div>
                             <div class="order-items-list">
@@ -283,21 +345,29 @@
                                 ${itemsHtml}
                             </div>
                             <div style="margin-top:8px; font-weight:bold; color:#4ade80;">الإجمالي الكلي: ${o.totalAmount} ج.س</div>
-                            ${o.customerNotes !== 'لا توجد ملاحظات' ? `<div style="margin-top:4px; color:#fbbf24;">ملاحظة الزبون: ${o.customerNotes}</div>` : ''}
+                            ${o.customerNotes && o.customerNotes !== 'لا توجد ملاحظات' ? `<div style="margin-top:4px; color:#fbbf24;">ملاحظة الزبون: ${o.customerNotes}</div>` : ''}
                         </div>
                     </div>
                 `;
             });
         }
-
-        window.onload = () => {
-            loadAdminData();
-        };
     </script>
 </head>
 <body>
 
-    <div class="container">
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>تسجيل دخول المشرف</h2>
+            <form onsubmit="event.preventDefault(); checkLogin();">
+                <input type="password" id="adminPasswordInput" placeholder="أدخل كلمة المرور (الافتراضية: 123)">
+                <button type="submit" class="btn">دخول لوحة التحكم</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- محتوى لوحة التحكم الأساسي -->
+    <div id="adminContent" class="container">
         <h1>لوحة تحكم المشرف - Mohammed Store</h1>
 
         <!-- 1. إضافة أو تعديل عرض -->
@@ -323,9 +393,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>رابط الصورة (Image URL) أو اختر من المعرض</label>
+                    <label>رابط الصورة أو رفعها من المعرض (يتم ضغطها تلقائياً)</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="pImg" placeholder="رابط الصورة المباشر أو سيتم تعبئته تلقائياً من المعرض">
+                        <input type="text" id="pImg" placeholder="رابط الصورة أو سيتم تعبئته تلقائياً عند الرفع">
                         <input type="file" id="imageGalleryInput" accept="image/*" onchange="handleImageUpload(event)" style="display: none;">
                         <button type="button" onclick="document.getElementById('imageGalleryInput').click();" style="background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 0 15px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 13px;">اختر من المعرض</button>
                     </div>
@@ -409,3 +479,4 @@
 
 </body>
 </html>
+ 
